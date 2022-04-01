@@ -2,6 +2,8 @@
 
 std::shared_ptr<IdentifierManager> IdentifierManager::_instance = nullptr;
 
+int IdentifierManager::_buffer_base = 0;
+
 std::shared_ptr<IdentifierManager> IdentifierManager::Instance()
 {
 	if (IdentifierManager::_instance == nullptr)
@@ -9,9 +11,9 @@ std::shared_ptr<IdentifierManager> IdentifierManager::Instance()
 	return _instance;
 }
 
-FileID IdentifierManager::generate_fileid()
+FileID IdentifierManager::generate_fileid(const std::string& filename)
 {
-	return FileID(IdentifierManager::Instance()->_fileid_base++);
+	return FileID(filename);
 }
 
 TokenID IdentifierManager::generate_tokenid(TokenID::Type type)
@@ -22,4 +24,10 @@ TokenID IdentifierManager::generate_tokenid(TokenID::Type type)
 SymbolID IdentifierManager::generate_symbolid(const SymbolID::Type type, const std::string& symbol)
 {
 	return SymbolID(type, symbol);
+}
+
+BufferID IdentifierManager::generate_bufferid()
+{
+	BufferID buffer_id(_buffer_base++);
+	return buffer_id;
 }

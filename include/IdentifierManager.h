@@ -5,12 +5,13 @@
 class IdentifierManager
 {
 public:
-	static std::shared_ptr<IdentifierManager> Instance();
-	FileID generate_fileid();
-	TokenID generate_tokenid(TokenID::Type type);
-	SymbolID generate_symbolid(const SymbolID::Type type, const std::string& symbol);
+    static std::shared_ptr<IdentifierManager> Instance();
+    FileID generate_fileid(const std::string& filename);
+    TokenID generate_tokenid(TokenID::Type type);
+    SymbolID generate_symbolid(const SymbolID::Type type, const std::string& symbol);
+    BufferID generate_bufferid();
 private:
-	IdentifierManager() :_fileid_base(0) {}
-	int _fileid_base;
-	static std::shared_ptr<IdentifierManager> _instance;
+    IdentifierManager() {}
+    static std::shared_ptr<IdentifierManager> _instance;
+    static int _buffer_base;
 };

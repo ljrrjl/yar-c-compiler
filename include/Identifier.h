@@ -4,18 +4,18 @@
 class FileID
 {
 public:
-	FileID(int num) : _num(num){}
+	FileID(const std::string& filename) : _filename(filename) {}
 	bool operator<(const FileID& other) const
 	{
-		return _num < other._num;
+		return _filename < other._filename;
 	}
 	friend std::ostream& operator<<(std::ostream& os, const FileID& fileid)
 	{
-		os << "[file id] " << fileid._num;
+		os << "[file id] " << fileid._filename;
 		return os;
 	}
 private:
-	int _num;
+	std::string _filename;
 };
 
 class TokenID
@@ -68,4 +68,22 @@ public:
 private:
 	std::string _symbol;
 	SymbolID::Type _type;
+};
+
+class BufferID
+{
+public:
+	explicit BufferID(int num): _num(num){}
+	bool operator<(const BufferID& other) const
+	{
+		return _num < other._num;
+	}
+	friend std::ostream& operator<<(std::ostream& os, const BufferID& buffer_id)
+	{
+		os << "[buffer id] " << buffer_id._num;
+		return os;
+	}
+
+private:
+	int _num;
 };

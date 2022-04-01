@@ -12,6 +12,9 @@ add_executable(yar-c-protoc
 	src/TokenQueue.cc
 	src/yar_protoc.tab.cc
 	src/lex.yy.cc
+	src/Sentence.cc
+	src/GeneratorFactory.cc
+	src/File.cc
 )
 
 install(TARGETS yar-c-protoc DESTINATION bin)

@@ -1,8 +1,15 @@
 %{
     #include "yar_protoc.tab.h"
     #include <stdio.h>
+
+    #include <sstream>
+    #include <string>
     #include "TokenQueue.h"
     #include "SymbolTable.h"
+    #include "GeneratorFactory.h"
+    #include "IdentifierManager.h"
+    #include "FileManager.h"
+    #include "Sentence.h"
 
     extern int yylex(void);
     extern void yyerror(const char* s);
@@ -21,6 +28,9 @@ sentence : message
 	;
 
 message : MESSAGE ID LC kv_sentence RC {
+	auto file_id = FileManager::Instance()->register_file(std::string("message.h"), FileInfo(FileInfo::Type::HEADER, FileInfo::Type::OUT));
+	auto symbol_generator_ptr = GeneratorFactory::Instance()->create_generator(file_id, SymbolTable::Instance()->last_insert());
+	symbol_generator_ptr->generate();
 }
 	| error {  }
 	;
