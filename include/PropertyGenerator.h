@@ -14,11 +14,20 @@ protected:
 	std::shared_ptr<KVProperty> _kvproperty;
 };
 
-class MessagePropertyGenerator : public PropertyGenerator
+class MessagePropertyHeaderGenerator : public PropertyGenerator
 {
 public:
-	MessagePropertyGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
+	MessagePropertyHeaderGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
 	virtual std::shared_ptr<Sentence> generate() override;
+private:
+	std::shared_ptr<Sentence> generate_array();
+};
+
+class MessagePropertySourceGenerator : public PropertyGenerator
+{
+public:
+	MessagePropertySourceGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
+	virtual std::shared_ptr<Sentence> generate() override {return nullptr;}
 private:
 	std::shared_ptr<Sentence> generate_array();
 };

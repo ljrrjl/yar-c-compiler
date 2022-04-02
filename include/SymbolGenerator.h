@@ -15,11 +15,18 @@ protected:
 	std::shared_ptr<Symbol> _symbol;
 };
 
-class MessageGenerator : public SymbolGenerator
+class MessageHeaderGenerator : public SymbolGenerator
 {
 public:
-	MessageGenerator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol):SymbolGenerator(file_id, symbol){}
+	MessageHeaderGenerator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol):SymbolGenerator(file_id, symbol){}
 	virtual std::shared_ptr<Sentence> generate() override;
+};
+
+class MessageSourceGenerator : public SymbolGenerator
+{
+public:
+	MessageSourceGenerator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol):SymbolGenerator(file_id, symbol){}
+	virtual std::shared_ptr<Sentence> generate() override{ return nullptr;  }
 };
 
 class RpcGenerator: public SymbolGenerator

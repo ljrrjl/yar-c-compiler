@@ -47,12 +47,14 @@ public:
 			return "char*";
 		break;
 		case TokenID::Type::ARRAY:
-			if(_addtion.size() == 1)
+			if(_addtion.size() == 2)
 				return "array_" + _addtion.front();
 		break;
 		case TokenID::Type::USER:
 			if(_addtion.size() == 1)
+			{
 				return _addtion.front();
+			}
 		break;
 		}
 		throw "serial fault";

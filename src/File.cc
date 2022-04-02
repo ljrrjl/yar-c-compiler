@@ -42,3 +42,8 @@ void File::write(const std::shared_ptr<Sentence>& sentence)
 		_filestream << sentence->out();
 	}
 }
+
+FileInfo File::get_info() const
+{
+	return _info;
+}

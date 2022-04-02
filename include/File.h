@@ -13,6 +13,7 @@ public:
 	virtual bool open();
 	virtual void close();
 	virtual bool is_open() const;
+	virtual FileInfo get_info() const;
 	virtual void write(const std::shared_ptr<Sentence>& sentence);
 private:
 	std::fstream _filestream;

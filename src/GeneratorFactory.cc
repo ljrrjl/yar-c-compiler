@@ -1,4 +1,5 @@
 #include "GeneratorFactory.h"
+#include "FileManager.h"
 
 std::shared_ptr<GeneratorFactory> GeneratorFactory::_instance = nullptr;
 
@@ -14,7 +15,9 @@ std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file
 	switch(symbol->get_token_id().get_type())
 	{
 	case TokenID::Type::MESSAGE:
-		return std::make_shared<MessageGenerator>(file_id, symbol);
+		if(FileManager::Instance()->get_file(file_id)->get_info().get_type() == FileInfo::Type::HEADER)
+			return std::make_shared<MessageHeaderGenerator>(file_id, symbol);
+		return std::make_shared<MessageSourceGenerator>(file_id, symbol);
 	break;
 	case TokenID::Type::SERVICE:
 		return std::make_shared<RpcGenerator>(file_id, symbol);
@@ -28,5 +31,10 @@ std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file
 	if(kvproperty->_key.get_id().get_type() == TokenID::Type::RPC)
 		return std::make_shared<RpcPropertyGenerator>(file_id, kvproperty);
 	else
-		return std::make_shared<MessagePropertyGenerator>(file_id, kvproperty);
+	{
+		if(FileManager::Instance()->get_file(file_id)->get_info().get_type() == FileInfo::Type::HEADER)
+			return std::make_shared<MessagePropertyHeaderGenerator>(file_id, kvproperty);
+		else
+			return std::make_shared<MessagePropertySourceGenerator>(file_id, kvproperty);
+	}
 }
