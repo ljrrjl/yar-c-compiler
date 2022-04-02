@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 #include <deque>
 #include <sstream>
@@ -18,9 +19,11 @@ public:
 	}
 	virtual Sentence& operator<<(const std::shared_ptr<Sentence>& sentence)
 	{
-		_str.append(sentence->_str);
+		_str.append(sentence->out());
 		return *this;
 	}
+	int get_align() const{ return _align;  }
+	void set_align(int num) { _align = num;  }
 protected:
 	static int _align;
 	std::string _str;
@@ -44,7 +47,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);

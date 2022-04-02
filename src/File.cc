@@ -2,6 +2,8 @@
 
 bool File::open()
 {
+	if(_filestream.is_open())
+		return true;
 	if (!_info.is_available())
 	{
 		return false;
@@ -35,7 +37,7 @@ void File::close()
 
 void File::write(const std::shared_ptr<Sentence>& sentence)
 {
-	if (this->is_open() && _info.get_mode() == FileInfo::Type::OUT)
+	if (this->open() && _info.get_mode() == FileInfo::Type::OUT && sentence != nullptr)
 	{
 		_filestream << sentence->out();
 	}

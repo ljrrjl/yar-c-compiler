@@ -30,7 +30,8 @@ sentence : message
 message : MESSAGE ID LC kv_sentence RC {
 	auto file_id = FileManager::Instance()->register_file(std::string("message.h"), FileInfo(FileInfo::Type::HEADER, FileInfo::Type::OUT));
 	auto symbol_generator_ptr = GeneratorFactory::Instance()->create_generator(file_id, SymbolTable::Instance()->last_insert());
-	symbol_generator_ptr->generate();
+	auto message_sentence_ptr = symbol_generator_ptr->generate();
+        FileManager::Instance()->get_file(file_id)->write(message_sentence_ptr);
 }
 	| error {  }
 	;
@@ -48,7 +49,7 @@ rpc_method : RPC ID LP ID RP RETURNS LP ID RP SEMI {
 	auto input_token = TokenQueue::Instance()->pop_until_last_id();
 	auto rpc_token = TokenQueue::Instance()->pop_until_last_id();
 
-	PredefType type(TokenID(TokenID::Type::SERVICE), {input_token->text(), output_token->text()});
+	PredefType type(TokenID(TokenID::Type::RPC), {input_token->text(), output_token->text()});
 	*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, rpc_token->text());
 } 
 

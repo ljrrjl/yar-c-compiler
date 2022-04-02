@@ -29,7 +29,7 @@ then
 else
 	cmake -DCMAKE_BUILD_TYPE=Debug ..
 fi
-make
+make -j4
 make install
 cd ..
 rm include/yar_protoc.tab.h

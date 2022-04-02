@@ -26,7 +26,7 @@ public:
 	}
 	virtual void close() override { _file->close(); }
 	virtual bool is_open() const override { return _file->is_open(); }
-	virtual void write(const std::shared_ptr<Sentence>& sentence) override { return _file->write(sentence); }
+	virtual void write(const std::shared_ptr<Sentence>& sentence) override { open();_file->write(sentence); }
 	virtual ~HeaderFileDecorator() { }
 };
 

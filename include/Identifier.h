@@ -32,6 +32,21 @@ public:
 	{
 		return _type < other._type;
 	}
+	static TokenID from_str_to_id(const std::string& str)
+        {
+                if(str == "int64")
+                        return TokenID::Type::INT64;
+                else if(str == "float64")
+                        return TokenID::Type::FLOAT64;
+                else if(str == "array")
+                        return TokenID::Type::ARRAY;
+                else if(str == "string")
+                        return TokenID::Type::STRING;
+                else if(str == "bool")
+                        return TokenID::Type::BOOLEAN;
+                else
+                        return TokenID::Type::USER;
+        }
 	friend std::ostream& operator<<(std::ostream& os, const TokenID& tokenid)
 	{
 		os << "[token id] " << static_cast<int>(tokenid._type);
