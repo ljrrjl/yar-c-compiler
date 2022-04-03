@@ -154,8 +154,8 @@ private:
 class ElseSentence : public Sentence
 {
 public:
-	ElseSentence() = delete;
-	ElseSentence(const std::deque<std::shared_ptr<Sentence> >& sentences = {}) : _sentences(sentences) {}
+	ElseSentence() = default;
+	explicit ElseSentence(const std::deque<std::shared_ptr<Sentence> >& sentences) : _sentences(sentences) {}
 	virtual std::string out() override
 	{
 		std::stringstream ss;
@@ -322,6 +322,36 @@ public:
 		_align--;
 		do_align(ss);
 		ss << "}while( " << _str << " );\n";
+		return ss.str();
+	}
+	virtual Sentence& operator<<(const std::shared_ptr<Sentence>& sentence) override
+	{
+		_sentences.emplace_back(sentence);
+		return *this;
+	}
+private:
+	std::deque<std::shared_ptr<Sentence> > _sentences;
+};
+
+class FuncSentence : public Sentence
+{
+public:
+	FuncSentence() = delete;
+	FuncSentence(const std::string& str, const std::deque<std::shared_ptr<Sentence> >& sentences = {}) :Sentence(str), _sentences(sentences) {}
+	virtual std::string out() override
+	{
+		std::stringstream ss;
+		do_align(ss);
+		ss <<  _str << "{" << '\n';
+		_align++;
+		for (auto& sentence : _sentences)
+		{
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
+		}
+		_align--;
+		do_align(ss);
+		ss << "}\n";
 		return ss.str();
 	}
 	virtual Sentence& operator<<(const std::shared_ptr<Sentence>& sentence) override

@@ -35,4 +35,6 @@ namespace
 #define EXP(...) exp<Sentence>(__VA_ARGS__);
 #define IF(...) exp<IfSentence>(__VA_ARGS__);
 #define STRUCT(...) exp<StructSentence>(__VA_ARGS__);
+#define FUNC(...) exp<FuncSentence>(__VA_ARGS__);
+#define FOR(...) exp<ForSentence>(__VA_ARGS__);
 

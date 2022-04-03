@@ -26,15 +26,12 @@ class MessageSourceGenerator : public SymbolGenerator
 {
 public:
 	MessageSourceGenerator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol):SymbolGenerator(file_id, symbol){}
-	virtual std::shared_ptr<Sentence> generate() override{ return nullptr;  }
+	virtual std::shared_ptr<Sentence> generate() override;
 };
 
 class RpcGenerator: public SymbolGenerator
 {
 public:
 	RpcGenerator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol):SymbolGenerator(file_id, symbol){}
-	virtual std::shared_ptr<Sentence> generate() override
-	{
-		return nullptr;
-	}
+	virtual std::shared_ptr<Sentence> generate() override { return nullptr;  }
 };

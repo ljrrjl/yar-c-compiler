@@ -27,7 +27,7 @@ class MessagePropertySourceGenerator : public PropertyGenerator
 {
 public:
 	MessagePropertySourceGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
-	virtual std::shared_ptr<Sentence> generate() override {return nullptr;}
+	virtual std::shared_ptr<Sentence> generate() override; 
 private:
 	std::shared_ptr<Sentence> generate_array();
 };

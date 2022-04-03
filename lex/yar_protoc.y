@@ -28,10 +28,14 @@ sentence : message
 	;
 
 message : MESSAGE ID LC kv_sentence RC {
-	auto file_id = FileManager::Instance()->register_file(std::string("message.h"), FileInfo(FileInfo::Type::HEADER, FileInfo::Type::OUT));
+	auto file_id = FileManager::Instance()->register_file(std::string("message.h"), FileInfo(FileInfo::Type::MESSAGEHEADER, FileInfo::Type::OUT));
 	auto symbol_generator_ptr = GeneratorFactory::Instance()->create_generator(file_id, SymbolTable::Instance()->last_insert());
 	auto message_sentence_ptr = symbol_generator_ptr->generate();
         FileManager::Instance()->get_file(file_id)->write(message_sentence_ptr);
+	auto src_file_id = FileManager::Instance()->register_file(std::string("message.c"), FileInfo(FileInfo::Type::MESSAGESOURCE, FileInfo::Type::OUT));
+	auto symbol_source_generator_ptr = GeneratorFactory::Instance()->create_generator(src_file_id, SymbolTable::Instance()->last_insert());
+	auto message_source_sentence_ptr = symbol_source_generator_ptr->generate();
+	FileManager::Instance()->get_file(src_file_id)->write(message_source_sentence_ptr);
 }
 	| error {  }
 	;

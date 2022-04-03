@@ -5,8 +5,8 @@ class FileInfo
 public:
 	enum class Type : int
 	{
-		HEADER,
-		SOURCE,
+		MESSAGEHEADER,
+		MESSAGESOURCE,
 		IN,
 		OUT,
 		NANO
