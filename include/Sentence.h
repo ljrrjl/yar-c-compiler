@@ -19,7 +19,9 @@ public:
 	}
 	virtual Sentence& operator<<(const std::shared_ptr<Sentence>& sentence)
 	{
-		_str.append(sentence->out());
+
+		if(sentence != nullptr)
+			_str.append(sentence->out());
 		return *this;
 	}
 	int get_align() const{ return _align;  }
@@ -77,7 +79,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -106,7 +109,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -135,7 +139,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -164,7 +169,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -193,7 +199,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -222,7 +229,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -255,7 +263,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -288,7 +297,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);
@@ -317,7 +327,8 @@ public:
 		_align++;
 		for (auto& sentence : _sentences)
 		{
-			ss << std::move(sentence->out());
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
 		}
 		_align--;
 		do_align(ss);

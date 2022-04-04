@@ -335,3 +335,8 @@ std::shared_ptr<Sentence> MessagePropertySourceGenerator::generate_array()
 	*res_sentence << func_sentence;
 	return res_sentence;
 }
+
+std::shared_ptr<Sentence> RpcHeaderPropertyGenerator::generate()
+{
+	return nullptr;
+}

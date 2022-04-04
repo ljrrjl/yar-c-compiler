@@ -32,11 +32,18 @@ private:
 	std::shared_ptr<Sentence> generate_array();
 };
 
-class RpcPropertyGenerator : public PropertyGenerator
+class RpcHeaderPropertyGenerator : public PropertyGenerator
 {
 public:
-	RpcPropertyGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
-	virtual std::shared_ptr<Sentence> generate()
+	RpcHeaderPropertyGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
+	virtual std::shared_ptr<Sentence> generate() override;
+};
+
+class RpcSourcePropertyGenerator: public PropertyGenerator
+{
+public:
+	RpcSourcePropertyGenerator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty):PropertyGenerator(file_id, kvproperty){} 
+	virtual std::shared_ptr<Sentence> generate() override
 	{
 		return nullptr;
 	}

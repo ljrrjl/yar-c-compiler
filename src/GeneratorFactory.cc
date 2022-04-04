@@ -20,7 +20,13 @@ std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file
 		return std::make_shared<MessageSourceGenerator>(file_id, symbol);
 	break;
 	case TokenID::Type::SERVICE:
-		return std::make_shared<RpcGenerator>(file_id, symbol);
+		if(FileManager::Instance()->get_file(file_id)->get_info().get_type() == FileInfo::Type::RPCHEADER)
+			return std::make_shared<RpcHeaderGenerator>(file_id, symbol);
+		else if(FileManager::Instance()->get_file(file_id)->get_info().get_type() == FileInfo::Type::YARSOURCE)
+		{
+			return std::make_shared<YarSourceGenerator>(file_id, symbol);
+		}
+		return std::make_shared<RpcSourceGenerator>(file_id, symbol);
 	break;
 	}
 	return nullptr;
@@ -29,7 +35,12 @@ std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file
 std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file_id, const std::shared_ptr<KVProperty>& kvproperty)
 {
 	if(kvproperty->_key.get_id().get_type() == TokenID::Type::RPC)
-		return std::make_shared<RpcPropertyGenerator>(file_id, kvproperty);
+	{
+		if(FileManager::Instance()->get_file(file_id)->get_info().get_type() == FileInfo::Type::RPCSOURCE)
+			return std::make_shared<RpcSourcePropertyGenerator>(file_id, kvproperty);
+		else
+			return std::make_shared<RpcHeaderPropertyGenerator>(file_id, kvproperty);
+	}
 	else
 	{
 		if(FileManager::Instance()->get_file(file_id)->get_info().get_type() == FileInfo::Type::MESSAGEHEADER)

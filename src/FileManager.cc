@@ -27,6 +27,29 @@ FileID FileManager::register_file(const std::string& filename, const FileInfo& f
 		auto source_file = std::make_shared<MessageSourceFileDecorator>(file);
 		_files.insert(std::make_pair(file_id, source_file));
 	}
+	else if(fileinfo.get_type() == FileInfo::Type::RPCHEADER)
+	{
+		auto file = std::make_shared<File>(filename, fileinfo);
+		auto header_file = std::make_shared<ServiceHeaderFileDecorator>(file);
+		_files.insert(std::make_pair(file_id, header_file));
+	}
+	else if(fileinfo.get_type() == FileInfo::Type::RPCSOURCE)
+	{
+		auto file = std::make_shared<File>(filename, fileinfo);
+		auto source_file = std::make_shared<ServiceSourceFileDecorator>(file);
+		_files.insert(std::make_pair(file_id, source_file));
+	}
+	else if(fileinfo.get_type() == FileInfo::Type::YARSOURCE)
+	{
+		auto file = std::make_shared<File>(filename, fileinfo);
+		auto source_file = std::make_shared<YarSourceFileDecorator>(file);
+		_files.insert(std::make_pair(file_id, source_file));
+	}
+	else
+	{
+		auto file = std::make_shared<File>(filename, fileinfo);
+		_files.insert(std::make_pair(file_id, file));
+	}
 	return file_id;
 }
 

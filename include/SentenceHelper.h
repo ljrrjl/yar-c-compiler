@@ -37,4 +37,5 @@ namespace
 #define STRUCT(...) exp<StructSentence>(__VA_ARGS__);
 #define FUNC(...) exp<FuncSentence>(__VA_ARGS__);
 #define FOR(...) exp<ForSentence>(__VA_ARGS__);
+#define DOWHILE(...) exp<DoWhileSentence>(__VA_ARGS__);
 

@@ -41,6 +41,20 @@ message : MESSAGE ID LC kv_sentence RC {
 	;
 
 service : SERVICE ID LC rpc_methods RC  {
+	auto file_id = FileManager::Instance()->register_file(std::string("handler.h"), FileInfo(FileInfo::Type::RPCHEADER, FileInfo::Type::OUT));
+	auto symbol_generator_ptr = GeneratorFactory::Instance()->create_generator(file_id, SymbolTable::Instance()->last_insert());
+	auto service_sentence_ptr = symbol_generator_ptr->generate();
+	FileManager::Instance()->get_file(file_id)->write(service_sentence_ptr);
+
+	auto src_file_id = FileManager::Instance()->register_file(std::string("handler.c"), FileInfo(FileInfo::Type::RPCSOURCE, FileInfo::Type::OUT));
+	auto symbol_source_generator_ptr = GeneratorFactory::Instance()->create_generator(src_file_id, SymbolTable::Instance()->last_insert());
+	service_sentence_ptr = symbol_source_generator_ptr->generate();
+	FileManager::Instance()->get_file(src_file_id)->write(service_sentence_ptr);
+
+	auto yar_src_file_id = FileManager::Instance()->register_file(std::string("yar_handler.c"), FileInfo(FileInfo::Type::YARSOURCE, FileInfo::Type::OUT));
+	symbol_source_generator_ptr = GeneratorFactory::Instance()->create_generator(yar_src_file_id, SymbolTable::Instance()->last_insert());
+	auto yar_service_sentence_ptr = symbol_source_generator_ptr->generate();
+	FileManager::Instance()->get_file(yar_src_file_id)->write(yar_service_sentence_ptr);
 }
 	;
 
