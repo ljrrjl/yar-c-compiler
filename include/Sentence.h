@@ -3,6 +3,7 @@
 #include <memory>
 #include <deque>
 #include <sstream>
+#include <iostream>
 
 class Sentence
 {
@@ -14,14 +15,17 @@ public:
 	{
 		std::stringstream ss;
 		do_align(ss);
-		ss << _str << '\n';
+		ss << _str;
+		for (auto& sentence : _sentences)
+		{
+			if(sentence != nullptr)
+				ss << std::move(sentence->out());
+		}
 		return ss.str();
 	}
 	virtual Sentence& operator<<(const std::shared_ptr<Sentence>& sentence)
 	{
-
-		if(sentence != nullptr)
-			_str.append(sentence->out());
+		_sentences.emplace_back(sentence);
 		return *this;
 	}
 	int get_align() const{ return _align;  }
@@ -34,6 +38,8 @@ protected:
 		for (int i = 0; i < _align * 4; i++)
 			os << " ";
 	}
+private:
+	std::deque<std::shared_ptr<Sentence> > _sentences;
 };
 
 class StructSentence : public Sentence

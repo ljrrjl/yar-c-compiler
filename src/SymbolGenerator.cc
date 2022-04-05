@@ -116,8 +116,11 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
 		case TokenID::Type::ARRAY:
 			*func_sentence << EXP("new_msg->%s = %s_create(%s);", {kvproperty->_name, static_cast<std::string>(kvproperty->_key), kvproperty->_key.get_addtion()[1]});
 		break;
-		default:
+		case TokenID::Type::USER:
 			*func_sentence << EXP("new_msg->%s = %s_message_create();", {kvproperty->_name, static_cast<std::string>(kvproperty->_key)});
+		break;
+		default:
+			throw "unsupport type";
 		break;
 		}
 	}
@@ -147,9 +150,12 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
                 case TokenID::Type::ARRAY:
 			*func_sentence << EXP("%s_free(msg->%s);", {static_cast<std::string>(kvproperty->_key), kvproperty->_name});
                 break;
-                default:
+		case TokenID::Type::USER:
 			*func_sentence << EXP("%s_message_free(msg->%s);", {static_cast<std::string>(kvproperty->_key), kvproperty->_name});
                 break;
+		default:
+			throw "unsupport type";
+		break;
                 }
         }
 	*func_sentence << EXP("free(msg);");
@@ -255,17 +261,12 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
                                 throw "array<array> is no support";
                         break;
                         case TokenID::Type::USER:
-				func_sentence = FUNC("int %s_message_get_%s(struct %s_message** value, struct %s_message* msg)", {_symbol->get_symbol_value(), kvproperty->_name, kvproperty->_key.get_addtion().front(), _symbol->get_symbol_value()});
-				*func_sentence << EXP("*value = msg->%s;", {kvproperty->_name});
-				*func_sentence << EXP("return 0;");
+				func_sentence = FUNC("int %s_message_get_%s(struct %s_message** value, struct %s_message* msg, int index)", {_symbol->get_symbol_value(), kvproperty->_name, kvproperty->_key.get_addtion()[0], _symbol->get_symbol_value()});
+				*func_sentence << EXP("return %s_get(value, msg->%s, index);", {type_str, kvproperty->_name});
 				*res_sentence << func_sentence;
 
-				func_sentence = FUNC("int %s_message_set_%s(struct %s_message* msg, struct %s_message* value)", {_symbol->get_symbol_value(), kvproperty->_name, _symbol->get_symbol_value(), kvproperty->_key.get_addtion().front()});
-				if_sentence = IF("msg->%s != NULL", {kvproperty->_name});
-				*if_sentence << EXP("%s_message_free(msg->%s);", {kvproperty->_key.get_addtion().front(), kvproperty->_name});
-				*func_sentence << if_sentence;
-				*func_sentence << EXP("msg->%s = value;", {kvproperty->_name});
-				*func_sentence << EXP("return 0;");
+				func_sentence = FUNC("int %s_message_set_%s(struct %s_message* msg, struct %s_message* value, int index)", {_symbol->get_symbol_value(), kvproperty->_name, _symbol->get_symbol_value(), kvproperty->_key.get_addtion()[0]});
+				*func_sentence << EXP("return %s_set(msg->%s, value, index);", {type_str, kvproperty->_name});
 				*res_sentence << func_sentence;
                         break;
                         default:
@@ -273,9 +274,22 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
                         break;
 			}
                 break;
-                default:
-                        *res_sentence << EXP("%s_message_free(msg->%s);", {static_cast<std::string>(kvproperty->_key), kvproperty->_name});
+		case TokenID::Type::USER:
+			func_sentence = FUNC("int %s_message_get_%s(struct %s_message** value, struct %s_message* msg)", {_symbol->get_symbol_value(), kvproperty->_name, kvproperty->_key.get_addtion().front(), _symbol->get_symbol_value()});
+			*func_sentence << EXP("*value = msg->%s;", {kvproperty->_name});
+			*func_sentence << EXP("return 0;");
+			*res_sentence << func_sentence;
+
+			func_sentence = FUNC("int %s_message_set_%s(struct %s_message* msg, struct %s_message* value)", {_symbol->get_symbol_value(), kvproperty->_name, _symbol->get_symbol_value(), kvproperty->_key.get_addtion().front()});
+			if_sentence = IF("msg->%s != NULL", {kvproperty->_name});
+			*if_sentence << EXP("%s_message_free(msg->%s);", {kvproperty->_key.get_addtion().front(), kvproperty->_name});
+			*func_sentence << if_sentence;
+			*func_sentence << EXP("msg->%s = value;", {kvproperty->_name});
+			*func_sentence << EXP("return 0;");
+			*res_sentence << func_sentence;
                 break;
+		default:
+			throw "unsupport type";
                 }
         }
 	return res_sentence;
@@ -452,7 +466,7 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 					*dowhile_sentence_3 << if_sentence_2;
 					else_sentence = std::make_shared<ElseSentence>();
 					*else_sentence << EXP("%s_msg = %s_message_create();", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
-					*else_sentence << unpack_map_generate(user_symbol);
+					*else_sentence << unpack_map_generate(user_symbol, "array_value"s);
 					*else_sentence << EXP("%s_message_set_%s(input_msg, %s_msg, index);", {input_symbol_ptr->get_symbol_value(), kvproperty_input->_name, user_symbol->get_symbol_value()});
 					*dowhile_sentence_3 << else_sentence;
 
@@ -472,7 +486,7 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 				}
 				*if_sentence << EXP("struct %s_message* %s_msg = %s_message_create();", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 				*if_sentence << EXP("const yar_data* %s_yar_data = yar_unpack_iterator_current(it_map);", {user_symbol->get_symbol_value()});
-				*if_sentence << unpack_map_generate(user_symbol);
+				*if_sentence << unpack_map_generate(user_symbol, user_symbol->get_symbol_value() + "_yar_data"s);
 				*if_sentence << EXP("%s_message_set_%s(input_msg, %s_msg);", {input_symbol_ptr->get_symbol_value(), kvproperty_input->_name, user_symbol->get_symbol_value()});
 			break;
 			}
@@ -572,7 +586,7 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 					*if_sentence << EXP("yar_pack_push_null(packager);");
 					*for_sentence << if_sentence;
 					else_sentence = std::make_shared<ElseSentence>();
-					*else_sentence << pack_map_generate(user_symbol);
+					*else_sentence << pack_map_generate(user_symbol, "packager"s);
 					*for_sentence << else_sentence;
 					*func_sentence << for_sentence;
 				break;
@@ -589,7 +603,7 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 				}
 				*func_sentence << EXP("struct %s_message* %s_msg = NULL;", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 				*func_sentence << EXP("%s_message_get_%s(&%s_msg, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name, user_symbol->get_symbol_value()});
-				*func_sentence << pack_map_generate(user_symbol);
+				*func_sentence << pack_map_generate(user_symbol, "packager"s);
 			break;
 			default:
 				throw "unsupport type";
@@ -602,6 +616,214 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 		*func_sentence << EXP("%s_message_free(input_msg);", {input_symbol_ptr->get_symbol_value()});
 
 		*res_sentence << func_sentence;
+	}
+	return res_sentence;
+}
+
+
+std::shared_ptr<Sentence> YarSourceGenerator::unpack_map_generate(std::shared_ptr<Symbol> symbol, const std::string& yar_data)
+{
+	auto res_sentence = EXP("yar_unpack_iterator* %s_it_map = yar_unpack_iterator_init(%s);", {symbol->get_symbol_value(), yar_data});
+	auto dowhile_sentence = DOWHILE("yar_unpack_iterator_next(%s_it_map)", {symbol->get_symbol_value()});
+	*dowhile_sentence << EXP("struct msgpack_object_kv* kv_data = (struct msgpack_object_kv*)yar_unpack_iterator_current(%s_it_map);", {symbol->get_symbol_value()});
+	*dowhile_sentence << EXP("uint32_t strlength = kv_data->key.via.str.size;");
+	*dowhile_sentence << EXP("char* buffer = (char*)malloc(strlength + 1);");
+	*dowhile_sentence << EXP("memset(buffer, 0, strlength + 1);");
+	*dowhile_sentence << EXP("memcpy(buffer, kv_data->key.via.str.ptr, strlength);");
+	*dowhile_sentence << EXP("yar_unpack_iterator_next(%s_it_map);", {symbol->get_symbol_value()});
+	for(auto kvproperty : symbol->get_properties())
+	{
+		std::shared_ptr<Symbol> user_symbol = nullptr;
+		auto if_sentence = IF("strcmp(buffer, \"%s\") == 0", {kvproperty->_name});
+		std::shared_ptr<Sentence> dowhile_sentence_2 = nullptr;
+		switch(kvproperty->_key.get_id().get_type())
+		{
+		case TokenID::Type::INT64:
+			*if_sentence << EXP("%s_message_set_%s(%s_msg, kv_data->val.via.i64);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+		break;
+		case TokenID::Type::FLOAT64:
+			*if_sentence << EXP("%s_message_set_%s(%s_msg, kv_data->val.via.f64);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+		break;
+		case TokenID::Type::STRING:
+			*if_sentence << EXP("uint32_t val_strlength = kv_data->val.via.str.size;");
+                        *if_sentence << EXP("char* str = (char*)malloc(val_strlength + 1);");
+                        *if_sentence << EXP("memset(str, 0, val_strlength + 1);");
+                        *if_sentence << EXP("memcpy(str, kv_data->val.via.str.ptr, val_strlength);");
+                        *if_sentence << EXP("%s_message_set_%s(%s_msg, str);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+                        *if_sentence << EXP("free(str);");
+		break;
+		case TokenID::Type::BOOLEAN:
+			//why empty!!!
+		break;
+		case TokenID::Type::ARRAY:
+			*if_sentence << EXP("const yar_data* %s_%s_data = yar_unpack_iterator_current(%s_it_map);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+                        *if_sentence << EXP("yar_unpack_iterator* %s_%s_it_array = yar_unpack_iterator_init(%s_%s_data);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value(), kvproperty->_name});
+			switch(TokenID::from_str_to_id(kvproperty->_key.get_addtion()[0]).get_type())
+			{
+			case TokenID::Type::INT64:
+				*if_sentence << EXP("int index = 0;");
+				dowhile_sentence_2 = DOWHILE("yar_unpack_iterator_next(%s_%s_it_array)", {symbol->get_symbol_value(), kvproperty->_name});
+				*dowhile_sentence_2 << EXP("%s value = 0;", {INT64_t});
+				*dowhile_sentence_2 << EXP("const yar_data* array_value = yar_unpack_iterator_current(%s_%s_it_array);", {symbol->get_symbol_value(), kvproperty->_name});
+				*dowhile_sentence_2 << EXP("yar_unpack_data_value(array_value, &value);");
+				*dowhile_sentence_2 << EXP("%s_message_set_%s(%s_msg, value, index);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+				*dowhile_sentence_2 << EXP("index++;");
+				*if_sentence << dowhile_sentence_2;
+				*if_sentence << EXP("yar_unpack_iterator_free(%s_%s_it_array);", {symbol->get_symbol_value(), kvproperty->_name});
+			break;
+			case TokenID::Type::FLOAT64:
+				*if_sentence << EXP("int index = 0;");
+				dowhile_sentence_2 = DOWHILE("yar_unpack_iterator_next(%s_%s_it_array)", {symbol->get_symbol_value(), kvproperty->_name});
+				*dowhile_sentence_2 << EXP("%s value = 0;", {FLOAT64_t});
+				*dowhile_sentence_2 << EXP("const yar_data* array_value = yar_unpack_iterator_current(%s_%s_it_array);", {symbol->get_symbol_value(), kvproperty->_name});
+				*dowhile_sentence_2 << EXP("yar_unpack_data_value(array_value, &value);");
+				*dowhile_sentence_2 << EXP("%s_message_set_%s(%s_msg, value, index);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+				*dowhile_sentence_2 << EXP("index++;");
+				*if_sentence << dowhile_sentence_2;
+				*if_sentence << EXP("yar_unpack_iterator_free(%s_%s_it_array);", {symbol->get_symbol_value(), kvproperty->_name});
+			break;
+			case TokenID::Type::STRING:
+				*if_sentence << EXP("int index = 0;");
+				dowhile_sentence_2 = DOWHILE("yar_unpack_iterator_next(%s_%s_it_array)", {symbol->get_symbol_value(), kvproperty->_name});
+				*dowhile_sentence_2 << EXP("%s value = NULL;", {STRING_t});
+				*dowhile_sentence_2 << EXP("const yar_data* array_value = yar_unpack_iterator_current(%s_%s_it_array);", {symbol->get_symbol_value(), kvproperty->_name});
+				*dowhile_sentence_2 << EXP("msgpack_object* obj = (msgpack_object*)array_value;");
+				*dowhile_sentence_2 << EXP("int length = obj->via.str.size;");
+				*dowhile_sentence_2 << EXP("value = (char*)malloc(length + 1);");
+				*dowhile_sentence_2 << EXP("memset(value, 0, length + 1);");
+				*dowhile_sentence_2 << EXP("memcpy(value, obj->via.str.ptr, length);");
+				*dowhile_sentence_2 << EXP("%s_message_set_%s(%s_msg, value, index);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+				*dowhile_sentence_2 << EXP("free(value);");
+				*dowhile_sentence_2 << EXP("index++;");
+				*if_sentence << dowhile_sentence_2;
+				*if_sentence << EXP("yar_unpack_iterator_free(%s_%s_it_array);", {symbol->get_symbol_value(), kvproperty->_name});
+			break;
+			case TokenID::Type::BOOLEAN:
+				//why empty!!!
+			break;
+			case TokenID::Type::ARRAY:
+				throw "unsupport array<array>";
+			break;
+			case TokenID::Type::USER:
+				//why empty
+			break;
+			default:
+				throw "unsupport type";
+			break;
+			}
+		break;
+		case TokenID::Type::USER:
+			user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[0]));
+			if(user_symbol == nullptr)
+			{
+				throw "some message undefine";
+			}
+			EXP("struct %s_message* %s_msg = %s_message_create();", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
+			EXP("const yar_data* %s_yar_data = yar_unpack_iterator_current(%s_it_map);", {kvproperty->_key.get_addtion()[0], symbol->get_symbol_value()});
+			*if_sentence << unpack_map_generate(user_symbol, kvproperty->_key.get_addtion()[0] + "_yar_data"s);
+			*if_sentence << EXP("%s_message_set_%s(%s_msg, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value(), user_symbol->get_symbol_value()});
+		break;
+		default:
+			throw "unsupport type";
+		break;
+		}
+		*dowhile_sentence << if_sentence;
+	}
+	*dowhile_sentence << EXP("free(buffer);");
+	*res_sentence << dowhile_sentence;
+	*res_sentence << EXP("yar_unpack_iterator_free(%s_it_map);", {symbol->get_symbol_value()});
+	return res_sentence;
+}
+
+std::shared_ptr<Sentence> YarSourceGenerator::pack_map_generate(std::shared_ptr<Symbol> symbol, const std::string& yar_packager)
+{
+	auto res_sentence = EXP("");
+	*res_sentence << EXP("yar_pack_push_map(%s, %s);", {yar_packager, std::to_string(symbol->get_properties().size())});
+	std::shared_ptr<Symbol> user_symbol = nullptr;
+	for(auto kvproperty : symbol->get_properties())
+	{
+		std::shared_ptr<Sentence> for_sentence = nullptr;
+		std::shared_ptr<Sentence> if_sentence = nullptr;
+		std::shared_ptr<Sentence> else_sentence = nullptr;
+		*res_sentence << EXP("yar_pack_push_string(%s, \"%s\", %s);", {yar_packager, kvproperty->_name, std::to_string(kvproperty->_name.length())});
+		switch(kvproperty->_key.get_id().get_type())
+		{
+		case TokenID::Type::INT64:
+			*res_sentence << EXP("%s %s = 0;", {INT64_t, kvproperty->_name});
+			*res_sentence << EXP("%s_message_get_%s(&%s, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, kvproperty->_name, symbol->get_symbol_value()});
+			*res_sentence << EXP("yar_pack_push_long(packager, %s);", {kvproperty->_name});
+		break;
+		case TokenID::Type::FLOAT64:
+			*res_sentence << EXP("%s %s = 0;", {FLOAT64_t, kvproperty->_name});
+			*res_sentence << EXP("%s_message_get_%s(&%s, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, kvproperty->_name, symbol->get_symbol_value()});
+			*res_sentence << EXP("yar_pack_push_double(packager, %s);", {kvproperty->_name});
+		break;
+		case TokenID::Type::STRING:
+			*res_sentence << EXP("char* %s = NULL;", {kvproperty->_name});
+			*res_sentence << EXP("%s_message_get_%s(&%s, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, kvproperty->_name, symbol->get_symbol_value()});
+			*res_sentence << EXP("yar_pack_push_string(packager, %s, strlen(%s));", {kvproperty->_name, kvproperty->_name});
+		break;
+		case TokenID::Type::BOOLEAN:
+			//why empty!!!
+		break;
+		case TokenID::Type::ARRAY:
+			*res_sentence << EXP("yar_pack_push_array(packager, %s);", {kvproperty->_key.get_addtion()[1]});
+			switch(TokenID::from_str_to_id(kvproperty->_key.get_addtion()[0]).get_type())
+			{
+			case TokenID::Type::INT64:
+				*res_sentence << EXP("%s value;", {INT64_t});
+				for_sentence = FOR("int i = 0; i < %s; i++", {kvproperty->_key.get_addtion()[1]});
+				*for_sentence << EXP("%s_message_get_%s(&value, i, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+				*for_sentence << EXP("yar_pack_push_long(packager, value);");
+				*res_sentence << for_sentence;
+			break;
+			case TokenID::Type::FLOAT64:
+				*res_sentence << EXP("%s value;", {FLOAT64_t});
+				for_sentence = FOR("int i = 0; i < %s; i++", {kvproperty->_key.get_addtion()[1]});
+				*for_sentence << EXP("%s_message_get_%s(&value, i, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+				*for_sentence << EXP("yar_pack_push_double(packager, value);");
+				*res_sentence << for_sentence;
+			break;
+			case TokenID::Type::STRING:
+				*res_sentence << EXP("%s value;", {STRING_t});
+				for_sentence = FOR("int i = 0; i < %s; i++", {kvproperty->_key.get_addtion()[1]});
+				*for_sentence << EXP("%s_message_get_%s(&value, i, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value()});
+				if_sentence = IF("value == NULL");
+				*if_sentence << EXP("yar_pack_push_string(packager, \"\", 0);");
+				*for_sentence << if_sentence;
+				else_sentence = std::make_shared<ElseSentence>();
+				*else_sentence << EXP("yar_pack_push_string(packager, value, strlen(value));");
+				*for_sentence << else_sentence;
+				*res_sentence << for_sentence;
+			break;
+			case TokenID::Type::BOOLEAN:
+				//why empty!!!
+			break;
+			case TokenID::Type::ARRAY:
+				throw "unsupport array<array>";
+			break;
+			case TokenID::Type::USER:
+				//why empty!!!
+			break;
+			default:
+				throw "unsupport type";
+			break;
+			}
+		break;
+		case TokenID::Type::USER:
+			user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[0]));	
+			if(user_symbol == nullptr)
+			{
+				throw "some message undefined";
+			}
+			*res_sentence << EXP("struct %s_message* %s_msg = NULL;", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
+			*res_sentence << EXP("%s_message_get_%s(&%s_msg, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, user_symbol->get_symbol_value(), symbol->get_symbol_value()});
+			pack_map_generate(user_symbol, yar_packager);
+		break;
+		default:
+			throw "unsupport type";
+		break;
+		}
 	}
 	return res_sentence;
 }

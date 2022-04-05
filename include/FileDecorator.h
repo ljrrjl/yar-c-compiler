@@ -48,8 +48,8 @@ public:
 			return true;
 		else if(_file->open())
 		{
-			_file->write(std::make_shared<Sentence>("#include <stdlib.h>"));
-			_file->write(std::make_shared<Sentence>("#include <string.h>"));
+			_file->write(std::make_shared<Sentence>("#include <stdlib.h>\n"));
+			_file->write(std::make_shared<Sentence>("#include <string.h>\n"));
 			_file->write(std::make_shared<Sentence>("#include \"message.h\"\n"));
 			return true;
 		}

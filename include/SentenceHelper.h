@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <type_traits>
+
 namespace
 {
 	template<typename T>
@@ -27,6 +29,11 @@ namespace
 				flag = false;
 				os << ch;
 			}
+		}
+		if (std::is_same<T, Sentence>::value)
+		{
+			os << '\n';
+			return std::make_shared<T>(os.str());
 		}
 		return std::make_shared<T>(os.str());
 	}
