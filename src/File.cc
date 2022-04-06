@@ -1,3 +1,13 @@
+/**
+ * @file src/File.cc
+ * @brief Base file abstraction
+ * @details
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "File.h"
 
 bool File::open()

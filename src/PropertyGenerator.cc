@@ -1,3 +1,13 @@
+/**
+ * @file src/PropertyGenerator.cc
+ * @brief generate for Property
+ * @details Generate Sentence for each Property in Symbol
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "PropertyGenerator.h"
 #include "FileManager.h"
 #include "SentenceHelper.h"

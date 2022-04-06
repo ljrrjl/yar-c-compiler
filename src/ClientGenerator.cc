@@ -1,3 +1,13 @@
+/**
+ * @file src/ClientGenerator.cc
+ * @brief User interface for providing client and server.
+ * @details for yar_client.c, client.h, yar_server.c
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "ClientGenerator.h"
 #include "SymbolGenerator.h"
 #include "SymbolTable.h"
@@ -5,34 +15,44 @@
 
 using namespace std::string_literals;
 
+/**
+ * @brief Generate the definition of yar_protoc_call
+ * @return A Sentence containing the definition of yar_protoc_call.
+ */
+
 std::shared_ptr<Sentence> ClientSourceGenerator::generate()
 {
+	/// Storage of final results.
 	auto res_sentence = EXP("");
+
+	/// void* yar_protoc_call(char* hostname, char* group, char* func, void* input){
 	auto func_sentence = FUNC("void* yar_protoc_call(char* hostname, char* group, char* func, void* input)");
 	*func_sentence << EXP("yar_client *client = NULL;");
 	*func_sentence << EXP("yar_packager* packager = NULL;");
 	for(auto symbol : _symbols)
 	{
-		auto if_sentence = IF("strcmp(group, \"%s\") == 0", {symbol->get_symbol_value()});
+		/// if_1(...){
+		auto if_sentence = IF("strcmp(group, \"%s\") == 0", {symbol->get_symbol_value()}); // Determine the group to which the RPC belongs.
 		for(auto kvproperty : symbol->get_properties())
 		{
-			auto if_sentence_2 = IF("strcmp(func, \"%s\") == 0", {kvproperty->_name});
-			auto input_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[0]));
+			/// if_2(...){
+			auto if_sentence_2 = IF("strcmp(func, \"%s\") == 0", {kvproperty->_name}); // Determine the rpc method to call.
+			auto input_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[0])); // Get the incoming Symbol
 			auto output_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[1]));
 			if(input_symbol == nullptr || output_symbol == nullptr)
 			{
 				throw "some message undefine";
 			}
 			*if_sentence_2 << EXP("struct %s_message* input_msg = (struct %s_message*)input;", {input_symbol->get_symbol_value(), input_symbol->get_symbol_value()});
-			*if_sentence_2 << EXP("packager = yar_pack_start_map(%s);", {std::to_string(input_symbol->get_properties().size())});
+			*if_sentence_2 << EXP("packager = yar_pack_start_map(%s);", {std::to_string(input_symbol->get_properties().size())}); // All messages are packed into a map
 			std::shared_ptr<Sentence> if_sentence_3 = nullptr;
 			std::shared_ptr<Sentence> else_sentence_3 = nullptr;
 			std::shared_ptr<Symbol> user_symbol = nullptr;
 			for(auto input_kvproperty : input_symbol->get_properties())
 			{
 				std::shared_ptr<Sentence> for_sentence = nullptr;
-                                *if_sentence_2 << EXP("yar_pack_push_string(packager, \"%s\", %s);", {input_kvproperty->_name, std::to_string(input_kvproperty->_name.length())});
-                                switch(input_kvproperty->_key.get_id().get_type())
+                                *if_sentence_2 << EXP("yar_pack_push_string(packager, \"%s\", %s);", {input_kvproperty->_name, std::to_string(input_kvproperty->_name.length())}); // The key of map is the property name.
+                                switch(input_kvproperty->_key.get_id().get_type()) // Get the corresponding value pressed into map according to the different types.
                                 {
 				case TokenID::Type::INT64:
                                 	*if_sentence_2 << EXP("%s %s = 0;", {INT64_t, input_kvproperty->_name});
@@ -60,36 +80,48 @@ std::shared_ptr<Sentence> ClientSourceGenerator::generate()
                                         {
                                         case TokenID::Type::INT64:
 						*if_sentence_2 << EXP("%s value;", {INT64_t});
+						/// for_1(...){
 						for_sentence = FOR("int i = 0; i < %s; i++", {input_kvproperty->_key.get_addtion()[1]});
 						*for_sentence << EXP("%s_message_get_%s(&value, i, input_msg);", {input_symbol->get_symbol_value(), input_kvproperty->_name});
 						*for_sentence << EXP("yar_pack_push_long(packager, value);");
 						*if_sentence_2 << for_sentence;
+						/// } for_1
                                         break;
                                         case TokenID::Type::FLOAT64:
 						*if_sentence_2 << EXP("%s value;", {FLOAT64_t});
+						/// for_1(...){
 						for_sentence = FOR("int i = 0; i < %s; i++", {input_kvproperty->_key.get_addtion()[1]});
 						*for_sentence << EXP("%s_message_get_%s(&value, i, input_msg);", {input_symbol->get_symbol_value(), input_kvproperty->_name});
 						*for_sentence << EXP("yar_pack_push_double(packager, value);");
 						*if_sentence_2 << for_sentence;
+						/// } for_1
                                         break;
                                         case TokenID::Type::STRING:
 						*if_sentence_2 << EXP("%s value;", {STRING_t});
+						/// for_1(...){
 						for_sentence = FOR("int i = 0; i < %s; i++", {input_kvproperty->_key.get_addtion()[1]});
 						*for_sentence << EXP("%s_message_get_%s(&value, i, input_msg);", {input_symbol->get_symbol_value(), input_kvproperty->_name});
+						/// if_3{
 						if_sentence_3 = IF("value == NULL");
                                                 *if_sentence_3 << EXP("yar_pack_push_string(packager, \"\", 0);");
 						*for_sentence << if_sentence_3;
+						/// } if_3
+						/// else_3{
 						else_sentence_3 = std::make_shared<ElseSentence>();
                                                 *else_sentence_3 << EXP("yar_pack_push_string(packager, value, strlen(value));");
 						*for_sentence << else_sentence_3;
+						/// } else_3
                                 		*if_sentence_2 << for_sentence;
+						/// } for_1
                                         break;
 					case TokenID::Type::BOOLEAN:
 						*if_sentence_2 << EXP("%s value = 0;", {BOOLEAN_t});
+						/// for_1(...){
 						for_sentence = FOR("int i = 0; i < %s; i++", {input_kvproperty->_key.get_addtion()[1]});
 						*for_sentence << EXP("%s_message_get_%s(&value, i, input_msg);", {input_symbol->get_symbol_value(), input_kvproperty->_name});
 						*for_sentence << EXP("yar_pack_push_bool(packager, value);");
 						*if_sentence_2 << for_sentence;
+						/// } for_1
                                         break;
                                         case TokenID::Type::ARRAY:
 						throw "unsupport array<array>";
@@ -101,15 +133,21 @@ std::shared_ptr<Sentence> ClientSourceGenerator::generate()
 							throw "some message undefine";
                                                 }
                                                 *if_sentence_2 << EXP("struct %s_message* %s_msg = NULL;", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
+						/// for_1(...){
                                                 for_sentence = FOR("int i = 0; i < %s; i++", {input_kvproperty->_key.get_addtion()[1]})
 						*for_sentence << EXP("%s_message_get_%s(&%s_msg, input_msg, i);", {input_symbol->get_symbol_value(), input_kvproperty->_name, user_symbol->get_symbol_value()});
+						/// if_3(...){
 						if_sentence_3 = IF("%s_msg == NULL", {user_symbol->get_symbol_value()})
 						*if_sentence_3 << EXP("yar_pack_push_null(packager);");
 						*for_sentence << if_sentence_3;
+						/// } if_3
+						/// else_3{
 						else_sentence_3 = std::make_shared<ElseSentence>();
 						*else_sentence_3 << YarSourceGenerator::pack_map_generate(user_symbol, "packager"s);
 						*for_sentence << else_sentence_3;
+						/// } else_3
 						*if_sentence_2 << for_sentence;
+						/// } for_1
                                         break;
 					default:
 						throw "unsupport type";
@@ -133,18 +171,20 @@ std::shared_ptr<Sentence> ClientSourceGenerator::generate()
 			*if_sentence_3 << EXP("int persistent = 1;");
 			*if_sentence_3 << EXP("yar_client_set_opt(client, YAR_PERSISTENT_LINK, &persistent);");
 			*if_sentence_3 << EXP("yar_response *response = client->call(client, \"yar_%s_%s_handler\", 1, &packager);", {symbol->get_symbol_value(), kvproperty->_name});
+			/// if_4(...){
 			auto if_sentence_4 = IF("response");
-			*if_sentence_4 << EXP("struct %s_message* output_msg = %s_message_create();", {output_symbol->get_symbol_value(), output_symbol->get_symbol_value()});
+			*if_sentence_4 << EXP("struct %s_message* output_msg = %s_message_create();", {output_symbol->get_symbol_value(), output_symbol->get_symbol_value()}); // Prepare package return parameters.
 			*if_sentence_4 << EXP("const yar_data* parameters = yar_response_get_response(response);");
 			*if_sentence_4 << EXP("yar_unpack_iterator* it_map = yar_unpack_iterator_init(parameters);");
+			/// do_1{
 			auto dowhile_sentence = DOWHILE("yar_unpack_iterator_next(it_map)");
 			std::shared_ptr<Sentence> dowhile_sentence_2 = nullptr;
-			*dowhile_sentence << EXP("struct msgpack_object_kv* kv_data = (struct msgpack_object_kv*)yar_unpack_iterator_current(it_map);");                         
+			*dowhile_sentence << EXP("struct msgpack_object_kv* kv_data = (struct msgpack_object_kv*)yar_unpack_iterator_current(it_map);");
 			*dowhile_sentence << EXP("uint32_t strlength = kv_data->key.via.str.size;");
 			*dowhile_sentence << EXP("char* buffer = (char*)malloc(strlength + 1);");
 			*dowhile_sentence << EXP("memset(buffer, 0, strlength + 1);");
-			*dowhile_sentence << EXP("memcpy(buffer, kv_data->key.via.str.ptr, strlength);");
-			*dowhile_sentence << EXP("yar_unpack_iterator_next(it_map);");
+			*dowhile_sentence << EXP("memcpy(buffer, kv_data->key.via.str.ptr, strlength);"); // Get key
+			*dowhile_sentence << EXP("yar_unpack_iterator_next(it_map);");                    // Let iterator point to value
 			for(auto output_kvproperty : output_symbol->get_properties())
 			{
 				auto if_sentence_5 = IF("strcmp(buffer, \"%s\") == 0", {output_kvproperty->_name});
@@ -273,6 +313,7 @@ std::shared_ptr<Sentence> ClientSourceGenerator::generate()
 			}
 			*dowhile_sentence << EXP("free(buffer);");
 			*if_sentence_4 << dowhile_sentence;
+			/// }while_1();
 			*if_sentence_4 << EXP("yar_unpack_iterator_free(it_map);");
 			*if_sentence_4 << EXP("yar_response_free(response);");
 			*if_sentence_4 << EXP("free(response);");
@@ -281,23 +322,33 @@ std::shared_ptr<Sentence> ClientSourceGenerator::generate()
 			*if_sentence_4 << EXP("packager = NULL;");
 			*if_sentence_4 << EXP("return output_msg;");
 			*if_sentence_3 << if_sentence_4;
+			/// } if_4
 			*if_sentence_2 << if_sentence_3;
 			*if_sentence << if_sentence_2;
+			/// } if_2
 			*func_sentence << if_sentence;
+			/// } if_1
 			*func_sentence << EXP("return NULL;");
 		}
 	}
 	*res_sentence << func_sentence;
+	/// }
 	return res_sentence;
 }
 
+/**
+ * @brief client.h
+ *
+ */
 std::shared_ptr<Sentence> ClientHeaderGenerator::generate()
 {
 	auto res_sentence = EXP("void* yar_protoc_call(char* hostname, char* group, char* func, void* input);");
 	return res_sentence;
 }
 
-
+/**
+ * @brief yar_server.c
+ */
 std::shared_ptr<Sentence> ServerSourceGenerator::generate()
 {
 	auto res_sentence = EXP("");

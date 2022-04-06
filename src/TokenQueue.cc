@@ -1,3 +1,13 @@
+/**
+ * @file src/TokenQueue.cc
+ * @brief a queue of Token
+ * @details A user input source file abstracted as a token queue
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "TokenQueue.h"
 
 std::shared_ptr<TokenQueue> TokenQueue::_instance = nullptr;

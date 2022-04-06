@@ -1,3 +1,13 @@
+/**
+ * @file src/SymbolTable.cc
+ * @brief Collection of generated symbols
+ * @details There are two types of symbols, Message and RPC
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "SymbolTable.h"
 
 std::shared_ptr<SymbolTable> SymbolTable::_symboltable = nullptr;

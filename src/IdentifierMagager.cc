@@ -1,3 +1,13 @@
+/**
+ * @file src/IdentifierMagager.cc
+ * @brief Identifier Factory
+ * @details Generate various identifiers
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "IdentifierManager.h"
 
 std::shared_ptr<IdentifierManager> IdentifierManager::_instance = nullptr;

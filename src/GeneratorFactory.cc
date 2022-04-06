@@ -1,3 +1,13 @@
+/**
+ * @file src/GeneratorFactory.cc
+ * @brief Generator Factory
+ * @details Instantiate generators based on file types and incoming parameters
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "GeneratorFactory.h"
 #include "FileManager.h"
 

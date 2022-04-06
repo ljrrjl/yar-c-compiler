@@ -1,3 +1,13 @@
+/**
+ * @file src/FileManager.cc
+ * @brief File Factory
+ * @details Determine the decorator modifier File based on the file type in FileInfo
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "FileManager.h"
 #include "FileDecorator.h"
 

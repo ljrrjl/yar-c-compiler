@@ -1,3 +1,13 @@
+/**
+ * @file src/SymbolGenerator.cc
+ * @brief This file is used for Symbol generation
+ * @details message definition, message access tool declaration and implementation, rpc declaration and implementation
+ * @author jiarui.liu
+ * @email jiarui-liu@qq.com
+ * @version v0.1
+ * @date 2022-04-06
+ */
+
 #include "SymbolGenerator.h"
 #include "SymbolTable.h"
 #include "SentenceHelper.h"
@@ -11,6 +21,7 @@ std::shared_ptr<Sentence> MessageHeaderGenerator::generate()
 	auto res_sentence = EXP("");
 
 	//message define
+	//struct xxx_message{
 	auto message_sentence_ptr = STRUCT("%s_message", {_symbol->get_symbol_value()});
 	for(auto kvproperty : _symbol->get_properties())
 	{
@@ -18,12 +29,15 @@ std::shared_ptr<Sentence> MessageHeaderGenerator::generate()
 		*message_sentence_ptr << property_generate_ptr->generate();
 	}
 	*res_sentence << message_sentence_ptr;
-
+	//};
 	//message utils
+	//struct xxx_message* xxx_message_create();
 	*res_sentence << EXP("struct %s_message* %s_message_create();", {_symbol->get_symbol_value(), _symbol->get_symbol_value()});
+	//void xxx_message_free(struct xxx_message* msg);
 	*res_sentence << EXP("void %s_message_free(struct %s_message* msg);", {_symbol->get_symbol_value(), _symbol->get_symbol_value()});
 	for(auto kvproperty : _symbol->get_properties())
 	{
+		//this switch is for message's get and set method
 		switch(kvproperty->_key.get_id().get_type())
 		{
 		case TokenID::Type::INT64:
