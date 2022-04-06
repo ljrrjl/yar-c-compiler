@@ -45,4 +45,7 @@ namespace
 #define FUNC(...) exp<FuncSentence>(__VA_ARGS__);
 #define FOR(...) exp<ForSentence>(__VA_ARGS__);
 #define DOWHILE(...) exp<DoWhileSentence>(__VA_ARGS__);
+#define WHILE(...) exp<WhileSentence>(__VA_ARGS__);
+#define SWITCH(...) exp<SwitchSentence>(__VA_ARGS__);
+#define CASE(...) exp<CaseSentence>(__VA_ARGS__);
 

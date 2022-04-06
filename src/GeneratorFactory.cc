@@ -60,6 +60,9 @@ std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file
 	case FileInfo::Type::CLIENTHEADER:
 		return std::make_shared<ClientHeaderGenerator>(file_id, symbols);
 	break;
+	case FileInfo::Type::SERVERSOURCE:
+		return std::make_shared<ServerSourceGenerator>(file_id, symbols);
+	break;
 	}
 	return nullptr;
 }

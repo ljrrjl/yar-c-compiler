@@ -27,3 +27,10 @@ public:
 	ClientSourceGenerator(const FileID& file_id, const std::vector<std::shared_ptr<Symbol> >& symbols): ClientGenerator(file_id, symbols){}
 	virtual std::shared_ptr<Sentence> generate() override; 
 };
+
+class ServerSourceGenerator : public ClientGenerator
+{
+public:
+	ServerSourceGenerator(const FileID& file_id, const std::vector<std::shared_ptr<Symbol> >& symbols): ClientGenerator(file_id, symbols){}
+	virtual std::shared_ptr<Sentence> generate() override; 
+};

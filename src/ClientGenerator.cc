@@ -296,3 +296,69 @@ std::shared_ptr<Sentence> ClientHeaderGenerator::generate()
 	auto res_sentence = EXP("void* yar_protoc_call(char* hostname, char* group, char* func, void* input);");
 	return res_sentence;
 }
+
+
+std::shared_ptr<Sentence> ServerSourceGenerator::generate()
+{
+	auto res_sentence = EXP("");
+	*res_sentence << EXP("yar_server_handler handlers[] = {");
+	for(auto symbol : _symbols)
+	{
+		for(auto kvproperty : symbol->get_properties())
+		{
+			*res_sentence << EXP("\t{\"yar_%s_%s_handler\", sizeof(\"yar_%s_%s_handler\") - 1, yar_%s_%s_handler},", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value(), kvproperty->_name});
+		}
+	}
+	*res_sentence << EXP("\t{NULL, 0, NULL}");
+	*res_sentence << EXP("};");
+	auto func_sentence = FUNC("int main(int argc, char** argv)");
+	*func_sentence << EXP("int opt, max_childs = 5;");
+        *func_sentence << EXP("char *hostname = NULL, *yar_pid=NULL, *log_file = NULL;");
+        *func_sentence << EXP("char *user = NULL, *group = NULL;");
+        *func_sentence << EXP("int standalone = 0;");
+	auto while_sentence = WHILE("(opt = getopt(argc, argv, \"hS:n:K:p:Xl:u:g:\")) != -1");
+	auto switch_sentence = SWITCH("opt");
+	auto case_sentence = CASE("n");
+	*case_sentence << EXP("max_childs = atoi(optarg);");
+	*switch_sentence << case_sentence;
+	case_sentence = CASE("S");
+	*case_sentence << EXP("hostname = optarg;");
+	*switch_sentence << case_sentence;
+	case_sentence = CASE("p");
+	*case_sentence << EXP("yar_pid = optarg;");
+	*switch_sentence << case_sentence;
+	case_sentence = CASE("X");
+	*case_sentence << EXP("standalone = 1;");
+	*switch_sentence << case_sentence;
+	case_sentence = CASE("l");
+	*case_sentence << EXP("log_file = optarg;");
+	case_sentence = CASE("u");
+	*case_sentence << EXP("user = optarg;");
+	case_sentence = CASE("g");
+	*case_sentence << EXP("group = optarg;");
+	*switch_sentence << case_sentence;
+	auto default_sentence = std::make_shared<DefaultSentence>();
+	*default_sentence << EXP("yar_server_print_usage(argv[0]);");
+	*default_sentence << EXP("return 0;");
+	*switch_sentence << default_sentence;
+	*while_sentence << switch_sentence;
+	*func_sentence << while_sentence;
+         auto if_sentence =  IF("!hostname");
+	 *if_sentence << EXP("yar_server_print_usage(argv[0]);");
+	 *if_sentence << EXP("return 0;");
+	 *func_sentence << if_sentence;
+	 if_sentence = IF("yar_server_init(hostname)");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_STAND_ALONE, &standalone);");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_MAX_CHILDREN, &max_childs);");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_PID_FILE, yar_pid);");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_LOG_FILE, log_file);");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_CUSTOM_DATA, (void *)1);");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_CHILD_USER, user);");
+	 *if_sentence << EXP("yar_server_set_opt(YAR_CHILD_GROUP, group);");
+	 *if_sentence << EXP("yar_server_register_handler(handlers);");
+	 *if_sentence << EXP("yar_server_run();");
+	 *func_sentence << if_sentence;
+	 *func_sentence << EXP("return 0;");
+	 *res_sentence << func_sentence;
+	 return res_sentence;
+}

@@ -259,8 +259,8 @@ private:
 class DefaultSentence : public Sentence
 {
 public:
-	DefaultSentence() = delete;
-	DefaultSentence(const std::deque<std::shared_ptr<Sentence> >& sentences = {}, bool have_break = true) : _sentences(sentences), _have_break(have_break) {}
+	DefaultSentence() : _have_break(true){};
+	DefaultSentence(const std::deque<std::shared_ptr<Sentence> >& sentences, bool have_break = true) : _sentences(sentences), _have_break(have_break) {}
 	virtual std::string out() override
 	{
 		std::stringstream ss;
