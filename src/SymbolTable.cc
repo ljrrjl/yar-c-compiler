@@ -49,3 +49,14 @@ void SymbolTable::remove(const SymbolID& id)
 		_symbols.erase(res);
 	}
 }
+
+std::vector<std::shared_ptr<Symbol> > SymbolTable::find_all_service()
+{
+	std::vector<std::shared_ptr<Symbol> > res;
+	for(auto& [symbol_id, symbol] : _symbols)
+	{
+		if(symbol_id.get_type() == SymbolID::Type::RPC)
+			res.emplace_back(symbol);
+	}
+	return res;
+}

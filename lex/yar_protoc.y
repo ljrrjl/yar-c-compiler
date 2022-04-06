@@ -55,6 +55,16 @@ service : SERVICE ID LC rpc_methods RC  {
 	symbol_source_generator_ptr = GeneratorFactory::Instance()->create_generator(yar_src_file_id, SymbolTable::Instance()->last_insert());
 	auto yar_service_sentence_ptr = symbol_source_generator_ptr->generate();
 	FileManager::Instance()->get_file(yar_src_file_id)->write(yar_service_sentence_ptr);
+
+	auto yar_client_src_file_id = FileManager::Instance()->register_file(std::string("yar_client.c"), FileInfo(FileInfo::Type::CLIENTSOURCE, FileInfo::Type::OUT));
+	auto yar_client_generator_ptr = GeneratorFactory::Instance()->create_generator(yar_client_src_file_id, SymbolTable::Instance()->find_all_service());
+	auto yar_client_sentence_ptr = yar_client_generator_ptr->generate();
+	FileManager::Instance()->get_file(yar_client_src_file_id)->write(yar_client_sentence_ptr);
+
+	auto yar_client_header_file_id = FileManager::Instance()->register_file(std::string("client.h"), FileInfo(FileInfo::Type::CLIENTHEADER, FileInfo::Type::OUT));
+	yar_client_generator_ptr = GeneratorFactory::Instance()->create_generator(yar_client_header_file_id, SymbolTable::Instance()->find_all_service());
+	yar_client_sentence_ptr = yar_client_generator_ptr->generate();
+	FileManager::Instance()->get_file(yar_client_header_file_id)->write(yar_client_sentence_ptr);
 }
 	;
 

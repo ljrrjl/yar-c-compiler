@@ -48,7 +48,6 @@ class YarSourceGenerator : public SymbolGenerator
 public:
 	YarSourceGenerator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol):SymbolGenerator(file_id, symbol){}
 	virtual std::shared_ptr<Sentence> generate() override;
-private:
-	std::shared_ptr<Sentence> unpack_map_generate(std::shared_ptr<Symbol> symbol, const std::string& yar_data); 
-	std::shared_ptr<Sentence> pack_map_generate(std::shared_ptr<Symbol> symbol, const std::string& yar_packager); 
+	static std::shared_ptr<Sentence> unpack_map_generate(std::shared_ptr<Symbol> symbol, const std::string& yar_data); 
+	static std::shared_ptr<Sentence> pack_map_generate(std::shared_ptr<Symbol> symbol, const std::string& yar_packager); 
 };

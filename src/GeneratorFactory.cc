@@ -49,3 +49,19 @@ std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file
 			return std::make_shared<MessagePropertySourceGenerator>(file_id, kvproperty);
 	}
 }
+
+std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file_id, const std::vector<std::shared_ptr<Symbol> >& symbols)
+{
+	switch(FileManager::Instance()->get_file(file_id)->get_info().get_type())
+	{
+	case FileInfo::Type::CLIENTSOURCE:
+		return std::make_shared<ClientSourceGenerator>(file_id, symbols);
+	break;
+	case FileInfo::Type::CLIENTHEADER:
+		return std::make_shared<ClientHeaderGenerator>(file_id, symbols);
+	break;
+	}
+	return nullptr;
+}
+
+

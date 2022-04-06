@@ -2,6 +2,7 @@
 
 #include "File.h"
 #include <memory>
+
 class FileDecorator : public File
 {
 public:
@@ -129,4 +130,51 @@ public:
 	virtual bool is_open() const override { return _file->is_open(); }
 	virtual void write(const std::shared_ptr<Sentence>& sentence) override { open(); _file->write(sentence); }
 	virtual ~YarSourceFileDecorator() {}
+};
+
+class ClientSourceFileDecorator : public FileDecorator
+{
+public:
+	ClientSourceFileDecorator(std::shared_ptr<File> file) :FileDecorator(file) {} 
+
+	virtual bool open() override {
+		if (_file->is_open())
+			return true;
+		else if(_file->open())
+		{
+			_file->write(std::make_shared<Sentence>("#include \"client.h\"\n"));
+			_file->write(std::make_shared<Sentence>("#include \"yar.h\"\n"));
+			_file->write(std::make_shared<Sentence>("#include \"msgpack.h\"\n"));
+			return true;
+		}
+		return false;
+	}
+	virtual FileInfo get_info() const override { return _file->get_info();  }
+	virtual void close() override { _file->close(); }
+	virtual bool is_open() const override { return _file->is_open(); }
+	virtual void write(const std::shared_ptr<Sentence>& sentence) override { open(); _file->write(sentence); }
+	virtual ~ClientSourceFileDecorator() {}
+};
+
+class ClientHeaderFileDecorator : public FileDecorator
+{
+public:
+	ClientHeaderFileDecorator(std::shared_ptr<File> file) :FileDecorator(file) {} 
+
+	virtual bool open() override {
+		if (_file->is_open())
+			return true;
+		else if(_file->open())
+		{
+			_file->write(std::make_shared<Sentence>("#pragma once\n"));
+			_file->write(std::make_shared<Sentence>("#include \"message.h\"\n"));
+			return true;
+		}
+		return false;
+	}
+	virtual FileInfo get_info() const override { return _file->get_info();  }
+	virtual void close() override { _file->close(); }
+	virtual bool is_open() const override { return _file->is_open(); }
+	virtual void write(const std::shared_ptr<Sentence>& sentence) override { open(); _file->write(sentence); }
+	virtual ~ClientHeaderFileDecorator() {}
 };

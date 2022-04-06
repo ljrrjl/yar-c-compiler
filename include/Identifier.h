@@ -78,8 +78,8 @@ public:
 		os << "[symbol id] " << static_cast<int>(symbolid._type) << "-" << symbolid._symbol;
 		return os;
 	}
-	const std::string& get_symbol() { return _symbol; }
-	const SymbolID::Type& get_type() { return _type; }
+	const std::string& get_symbol()  const { return _symbol; }
+	const SymbolID::Type& get_type() const { return _type; }
 private:
 	std::string _symbol;
 	SymbolID::Type _type;

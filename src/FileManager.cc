@@ -45,6 +45,18 @@ FileID FileManager::register_file(const std::string& filename, const FileInfo& f
 		auto source_file = std::make_shared<YarSourceFileDecorator>(file);
 		_files.insert(std::make_pair(file_id, source_file));
 	}
+	else if(fileinfo.get_type() == FileInfo::Type::CLIENTSOURCE)
+	{
+		auto file = std::make_shared<File>(filename, fileinfo);
+		auto source_file = std::make_shared<ClientSourceFileDecorator>(file);
+		_files.insert(std::make_pair(file_id, source_file));
+	}
+	else if(fileinfo.get_type() == FileInfo::Type::CLIENTHEADER)
+	{
+		auto file = std::make_shared<File>(filename, fileinfo);
+		auto source_file = std::make_shared<ClientHeaderFileDecorator>(file);
+		_files.insert(std::make_pair(file_id, source_file));
+	}
 	else
 	{
 		auto file = std::make_shared<File>(filename, fileinfo);
