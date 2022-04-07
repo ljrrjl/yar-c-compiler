@@ -30,6 +30,7 @@ DOUHAO \,
 COMMENTS #.*
 SPACE [ \t]+
 NEWLINE \n
+OTHER .
 %%
 
 {INT64} {
@@ -154,7 +155,8 @@ NEWLINE \n
 	*TokenQueue::Instance() << std::make_shared<Token>(TokenID::Type::DOUHAO, std::string(yytext));
 	return DOUHAO;
 }
-{SPACE} {   }
-{COMMENTS} {   }
+{SPACE} { }
+{COMMENTS} { }
 {NEWLINE} { }
+{OTHER} {   }
 %%
