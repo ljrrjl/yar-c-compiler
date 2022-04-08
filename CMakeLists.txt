@@ -19,6 +19,7 @@ add_executable(yar-c-protoc
 	src/SymbolGenerator.cc
 	src/PropertyGenerator.cc
 	src/ClientGenerator.cc
+	src/Context.cc
 )
 
 install(TARGETS yar-c-protoc DESTINATION bin)

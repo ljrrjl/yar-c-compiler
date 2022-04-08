@@ -10,6 +10,7 @@
     #include "IdentifierManager.h"
     #include "FileManager.h"
     #include "Sentence.h"
+    #include "ProtocException.h"
 
     extern int yylex(void);
     extern void yyerror(const char* s);
@@ -27,7 +28,16 @@ sentence : message
 	 | sentence message
 	;
 
-message : MESSAGE ID LC kv_sentence RC {
+message : MESSAGE ID LC kv_sentence RC SEMI {
+	try{
+	throw ProtocException("Excess ';'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	
+	| MESSAGE ID LC kv_sentence RC {
 	auto file_id = FileManager::Instance()->register_file(std::string("message.h"), FileInfo(FileInfo::Type::MESSAGEHEADER, FileInfo::Type::OUT));
 	auto symbol_generator_ptr = GeneratorFactory::Instance()->create_generator(file_id, SymbolTable::Instance()->last_insert());
 	auto message_sentence_ptr = symbol_generator_ptr->generate();
@@ -37,10 +47,53 @@ message : MESSAGE ID LC kv_sentence RC {
 	auto message_source_sentence_ptr = symbol_source_generator_ptr->generate();
 	FileManager::Instance()->get_file(src_file_id)->write(message_source_sentence_ptr);
 }
-	| error {  }
+	| MESSAGE ID LC RC {
+	try{
+	throw ProtocException("Message body is empty.");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| MESSAGE ID LC kv_sentence {
+	try{
+	throw ProtocException("Except a '}'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| MESSAGE ID {
+	try{
+	throw ProtocException("Except a '{'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| MESSAGE LC {
+	try{
+	throw ProtocException("Except a Identifiers");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| error {
+
+}
 	;
 
-service : SERVICE ID LC rpc_methods RC  {
+service : SERVICE ID LC rpc_methods RC SEMI {
+	try{
+	throw ProtocException("Excess ';'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+
+	| SERVICE ID LC rpc_methods RC  {
 	auto file_id = FileManager::Instance()->register_file(std::string("handler.h"), FileInfo(FileInfo::Type::RPCHEADER, FileInfo::Type::OUT));
 	auto symbol_generator_ptr = GeneratorFactory::Instance()->create_generator(file_id, SymbolTable::Instance()->last_insert());
 	auto service_sentence_ptr = symbol_generator_ptr->generate();
@@ -71,6 +124,38 @@ service : SERVICE ID LC rpc_methods RC  {
 	auto yar_server_src_sentence = yar_server_generator_ptr->generate();
 	FileManager::Instance()->get_file(yar_server_src_file_id)->write(yar_server_src_sentence);
 }
+	| SERVICE ID LC rpc_methods {
+	try{
+	throw ProtocException("Except a '}'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| SERVICE ID LC RC {
+	try{
+	throw ProtocException("Service body is empty.");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| SERVICE ID {
+	try{
+	throw ProtocException("Except a '{'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| SERVICE LC {
+	try{
+	throw ProtocException("Except a Identifiers");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
 	;
 
 rpc_methods : rpc_method
@@ -82,9 +167,38 @@ rpc_method : RPC ID LP ID RP RETURNS LP ID RP SEMI {
 	auto input_token = TokenQueue::Instance()->pop_until_last_id();
 	auto rpc_token = TokenQueue::Instance()->pop_until_last_id();
 
+	auto input_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, input_token->text()));
+	auto output_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, output_token->text()));
+
+	if(input_symbol == nullptr)
+	{
+		try{
+		throw ProtocException(input_token->text() + " is undefined");
+		}catch(const ProtocException& e){
+			std::cerr << e.what() << std::endl;
+			exit(1);
+		}
+	}
+	if(output_symbol == nullptr)
+	{
+		try{
+		throw ProtocException(output_token->text() + " is undefined");
+		}catch(const ProtocException& e){
+			std::cerr << e.what() << std::endl;
+			exit(1);
+		}
+	}
 	PredefType type(TokenID(TokenID::Type::RPC), {input_token->text(), output_token->text()});
 	*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, rpc_token->text());
 } 
+	| RPC ID LP ID RP RETURNS LP ID RP {
+	try{
+	throw ProtocException("Except a ';'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
 
 kv_sentence : id_id_semi
 	| type_id_semi
@@ -95,9 +209,25 @@ kv_sentence : id_id_semi
 id_id_semi : ID ID SEMI {
 	auto name_token = TokenQueue::Instance()->pop_until_last_id();
 	auto type_token = TokenQueue::Instance()->pop_until_last_id();
-		
+
+	auto type_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, type_token->text()));
+	try{
+	if(type_symbol == nullptr)
+		throw ProtocException(type_token->text() + "is undefined");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
 	PredefType type(TokenID(TokenID::Type::USER), {type_token->text()});
 	*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, name_token->text());
+}
+	| ID ID {
+		try{
+		throw ProtocException("Expect a ';'");
+		}catch(const ProtocException& e){
+			std::cerr << e.what() << std::endl;
+			exit(1);
+		}
 }
 	   ;
 
@@ -112,21 +242,23 @@ type_id_semi : type ID SEMI {
 		array_type_token = TokenQueue::Instance()->pop_back();
 		array_type_token = TokenQueue::Instance()->pop_back();
 		array_type_token = TokenQueue::Instance()->pop_back();
-		if(array_type_token && array_size_token)
-		{
-			PredefType type(TokenID(g_type), {array_type_token->text(), array_size_token->text()});
-			*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, name_token->text());
-		}
-		else
-		{
-			throw "type_id_semi error";
-		}
+		PredefType type(TokenID(g_type), {array_type_token->text(), array_size_token->text()});
+		*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, name_token->text());
 	}
 	else
 	{
 		PredefType type(TokenID(g_type),{});
 		*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, name_token->text());
 	}
+}
+	| type ID {
+		try{
+		throw ProtocException("Expect a ';'");
+		}catch(const ProtocException& e){
+			std::cerr << e.what() << std::endl;
+			exit(1);
+		}
+		
 }
 	     ;
 
