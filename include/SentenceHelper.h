@@ -24,6 +24,11 @@ namespace
 				os << *cur_args++;
 				flag = false;
 			}
+			else if (flag)
+			{
+				os << '%' << ch;
+				flag = false;
+			}
 			else
 			{
 				flag = false;

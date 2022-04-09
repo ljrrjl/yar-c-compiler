@@ -80,7 +80,7 @@ message : MESSAGE ID LC kv_sentence RC SEMI {
 	}
 }
 	| error {
-
+	throw ProtocException("syntax error");
 }
 	;
 
@@ -190,7 +190,7 @@ rpc_method : RPC ID LP ID RP RETURNS LP ID RP SEMI {
 	}
 	PredefType type(TokenID(TokenID::Type::RPC), {input_token->text(), output_token->text()});
 	*SymbolTable::Instance()->last_insert() << std::make_shared<KVProperty>(type, rpc_token->text());
-} 
+}
 	| RPC ID LP ID RP RETURNS LP ID RP {
 	try{
 	throw ProtocException("Except a ';'");
@@ -198,6 +198,86 @@ rpc_method : RPC ID LP ID RP RETURNS LP ID RP SEMI {
 		std::cerr << e.what() << std::endl;
 		exit(1);
 	}
+}
+	| RPC ID LP ID RP RETURNS LP RP {
+	try{
+        throw ProtocException("Missing output type");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID LP ID RP RETURNS LP ID {
+	try{
+	throw ProtocException("Except a ')'");
+	}catch(const ProtocException& e){
+		std::cerr << e.what() << std::endl;
+		exit(1);
+	}
+}
+	| RPC ID LP ID RP RETURNS LP {
+	try{
+        throw ProtocException("Except a Identifiers");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID LP ID RP RETURNS {
+	try{
+        throw ProtocException("Except a '('");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID LP ID RP {
+	try{
+        throw ProtocException("Except a 'RETURN'");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID LP RP {
+	try{
+        throw ProtocException("Missing input type");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID LP ID {
+	try{
+	throw ProtocException("Except a ')'");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID LP {
+	try{
+        throw ProtocException("Except a Identifiers");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC ID {
+	try{
+        throw ProtocException("Except a '('");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
+}
+	| RPC {
+	try{
+        throw ProtocException("Except a Identifiers");
+        }catch(const ProtocException& e){
+                std::cerr << e.what() << std::endl;
+                exit(1);
+        }
 }
 
 kv_sentence : id_id_semi

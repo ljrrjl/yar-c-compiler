@@ -1,0 +1,122 @@
+message int_msg
+{
+	int64 value;
+}
+
+message float_msg
+{
+	float64 value;
+}
+
+message string_msg
+{
+	string value;
+}
+
+message array_int
+{
+	array<int64>[5] value;
+}
+
+message array_float
+{
+	array<float64>[5] value;
+}
+
+message array_string
+{
+	array<string>[5] value;
+}
+
+message array_bool
+{
+	array<bool>[5] value;
+}
+
+message bool_msg
+{
+	bool value;
+}
+
+service Test
+{
+	# int begin
+	rpc test_int_int_1(int_msg) returns(int_msg);
+	rpc test_int_float_2(int_msg) returns(float_msg);
+	rpc test_int_string_3(int_msg) returns(string_msg);
+	rpc test_int_array_int_4(int_msg) returns(array_int);
+	rpc test_int_array_float_5(int_msg) returns(array_float);
+	rpc test_int_array_string_6(int_msg) returns(array_string);
+	rpc test_int_array_bool_7(int_msg) returns(array_bool);
+	rpc test_int_bool_8(int_msg) returns(bool_msg);
+	
+	# float begin
+	rpc test_float_int_1(float_msg) returns(int_msg);
+	rpc test_float_float_2(float_msg) returns(float_msg);
+	rpc test_float_string_3(float_msg) returns(string_msg);
+	rpc test_float_array_int_4(float_msg) returns(array_int);
+	rpc test_float_array_float_5(float_msg) returns(array_float);
+	rpc test_float_array_string_6(float_msg) returns(array_string);
+	rpc test_float_array_bool_7(float_msg) returns(array_bool);
+	rpc test_float_bool_8(float_msg) returns(bool_msg);
+
+	# string begin
+	rpc test_string_int_1(string_msg) returns(int_msg);
+	rpc test_string_float_2(string_msg) returns(float_msg);
+	rpc test_string_string_3(string_msg) returns(string_msg);
+	rpc test_string_array_int_4(string_msg) returns(array_int);
+	rpc test_string_array_float_5(string_msg) returns(array_float);
+	rpc test_string_array_string_6(string_msg) returns(array_string);
+	rpc test_string_array_bool_7(string_msg) returns(array_bool);
+	rpc test_string_bool_8(string_msg) returns(bool_msg);
+
+	# array_int begin
+	rpc test_array_int_int_1(array_int) returns(int_msg);
+	rpc test_array_int_float_2(array_int) returns(float_msg);
+	rpc test_array_int_string_3(array_int) returns(string_msg);
+	rpc test_array_int_array_int_4(array_int) returns(array_int);
+	rpc test_array_int_array_float_5(array_int) returns(array_float);
+	rpc test_array_int_array_string_6(array_int) returns(array_string);
+	rpc test_array_int_array_bool_7(array_int) returns(array_bool);
+	rpc test_array_int_bool_8(array_int) returns(bool_msg);
+
+	# array_float begin
+	rpc test_array_float_int_1(array_float) returns(int_msg);
+	rpc test_array_float_float_2(array_float) returns(float_msg);
+	rpc test_array_float_string_3(array_float) returns(string_msg);
+	rpc test_array_float_array_int_4(array_float) returns(array_int);
+	rpc test_array_float_array_float_5(array_float) returns(array_float);
+	rpc test_array_float_array_string_6(array_float) returns(array_string);
+	rpc test_array_float_array_bool_7(array_float) returns(array_bool);
+	rpc test_array_float_bool_8(array_float) returns(bool_msg);
+
+	# array_string begin
+	rpc test_array_string_int_1(array_string) returns(int_msg);
+	rpc test_array_string_float_2(array_string) returns(float_msg);
+	rpc test_array_string_string_3(array_string) returns(string_msg);
+	rpc test_array_string_array_int_4(array_string) returns(array_int);
+	rpc test_array_string_array_float_5(array_string) returns(array_float);
+	rpc test_array_string_array_string_6(array_string) returns(array_string);
+	rpc test_array_string_array_bool_7(array_string) returns(array_bool);
+	rpc test_array_string_bool_8(array_string) returns(bool_msg);
+
+	# array_bool begin
+	rpc test_array_bool_int_1(array_bool) returns(int_msg);
+	rpc test_array_bool_float_2(array_bool) returns(float_msg);
+	rpc test_array_bool_string_3(array_bool) returns(string_msg);
+	rpc test_array_bool_array_int_4(array_bool) returns(array_int);
+	rpc test_array_bool_array_float_5(array_bool) returns(array_float);
+	rpc test_array_bool_array_string_6(array_bool) returns(array_string);
+	rpc test_array_bool_array_bool_7(array_bool) returns(array_bool);
+	rpc test_array_bool_bool_8(array_bool) returns(bool_msg);
+
+	# bool begin
+	rpc test_bool_int_1(bool_msg) returns(int_msg);
+	rpc test_bool_float_2(bool_msg) returns(float_msg);
+	rpc test_bool_string_3(bool_msg) returns(string_msg);
+	rpc test_bool_array_int_4(bool_msg) returns(array_int);
+	rpc test_bool_array_float_5(bool_msg) returns(array_float);
+	rpc test_bool_array_string_6(bool_msg) returns(array_string);
+	rpc test_bool_array_bool_7(bool_msg) returns(array_bool);
+	rpc test_bool_bool_8(bool_msg) returns(bool_msg);
+}

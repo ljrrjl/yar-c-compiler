@@ -257,6 +257,7 @@ std::shared_ptr<Sentence> MessagePropertySourceGenerator::generate_array()
 
 		func_sentence = FUNC("int %s_get(%s* value, struct %s* array, int index)", {type_str, BOOLEAN_t, type_str});
 		if_sentence = IF("index >= array->size");
+		*if_sentence << EXP("return -1;");
 		*func_sentence << if_sentence;
 		*func_sentence << EXP("int offset = index / 8;");
 		*func_sentence << EXP("int offset_bit = index % 8;");

@@ -1,11 +1,31 @@
 #pragma once
 #include "Property.h"
+#include "ProtocException.h"
 #include <algorithm>
 
 class Symbol
 {
 public:
 	Symbol(const std::string& name, const TokenID& id): _svalue(name), _id(id){}
+	TokenID get_token_id() { return _id; }
+	const std::string& get_symbol_value() { return _svalue; }
+	const std::vector<std::shared_ptr<KVProperty> >& get_properties() { return _properties; }
+	Symbol& operator<<(std::shared_ptr<KVProperty> property)
+	{
+		try{
+			if(!insert_property(property))
+			{
+				throw ProtocException("in message '" + _svalue + "': '" + property->_name + "' redefined");
+			}
+		}catch(const ProtocException& e){
+			std::cerr << e.what() << std::endl;
+		}
+		return *this;
+	}
+private:
+	TokenID _id;
+	std::string _svalue;
+	std::vector <std::shared_ptr<KVProperty> > _properties;
 	bool insert_property(std::shared_ptr<KVProperty> property)
 	{
 		bool have_same_property = false;
@@ -24,16 +44,4 @@ public:
 		}
 		return false;
 	}
-	TokenID get_token_id() { return _id; }
-	const std::string& get_symbol_value() { return _svalue; }
-	const std::vector<std::shared_ptr<KVProperty> >& get_properties() { return _properties; }
-	Symbol& operator<<(std::shared_ptr<KVProperty> property)
-	{
-		insert_property(property);
-		return *this;
-	}
-private:
-	TokenID _id;
-	std::string _svalue;
-	std::vector <std::shared_ptr<KVProperty> > _properties;
 };

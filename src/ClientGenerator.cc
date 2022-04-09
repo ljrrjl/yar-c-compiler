@@ -326,11 +326,11 @@ std::shared_ptr<Sentence> ClientSourceGenerator::generate()
 			*if_sentence_2 << if_sentence_3;
 			*if_sentence << if_sentence_2;
 			/// } if_2
-			*func_sentence << if_sentence;
-			/// } if_1
-			*func_sentence << EXP("return NULL;");
 		}
+		*func_sentence << if_sentence;
+		/// } if_1
 	}
+	*func_sentence << EXP("return NULL;");
 	*res_sentence << func_sentence;
 	/// }
 	return res_sentence;

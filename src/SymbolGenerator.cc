@@ -13,6 +13,7 @@
 #include "SentenceHelper.h"
 #include "GeneratorFactory.h"
 #include "FileManager.h"
+#include "ProtocException.h"
 
 using namespace std::string_literals;
 
@@ -76,14 +77,22 @@ std::shared_ptr<Sentence> MessageHeaderGenerator::generate()
 				*res_sentence << EXP("int %s_message_get_%s(%s* value, int index, struct %s_message* msg);", {_symbol->get_symbol_value(), kvproperty->_name, BOOLEAN_t, _symbol->get_symbol_value()});
 			break;
 			case TokenID::Type::ARRAY:
-				throw "array<array> is no support";
+				try{
+				throw ProtocException("Unsupport array<array>");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			case TokenID::Type::USER:
 				*res_sentence << EXP("int %s_message_get_%s(struct %s_message** value, struct %s_message* msg, int index);", {_symbol->get_symbol_value(), kvproperty->_name, kvproperty->_key.get_addtion().front(), _symbol->get_symbol_value()});
 				*res_sentence << EXP("int %s_message_set_%s(struct %s_message* msg, struct %s_message* value, int index);", {_symbol->get_symbol_value(), kvproperty->_name, _symbol->get_symbol_value(), kvproperty->_key.get_addtion().front()});
 			break;
 			default:
-				throw "unsupport type";
+				try{
+				throw ProtocException("Unknown Type");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			}
 		break;
@@ -134,7 +143,11 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
 			*func_sentence << EXP("new_msg->%s = %s_message_create();", {kvproperty->_name, static_cast<std::string>(kvproperty->_key)});
 		break;
 		default:
-			throw "unsupport type";
+			try{
+			throw ProtocException("Unknown Type");
+			}catch(const ProtocException& e){
+				std::cerr << e.what() << std::endl;
+			}
 		break;
 		}
 	}
@@ -168,7 +181,11 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
 			*func_sentence << EXP("%s_message_free(msg->%s);", {static_cast<std::string>(kvproperty->_key), kvproperty->_name});
                 break;
 		default:
-			throw "unsupport type";
+			try{
+			throw ProtocException("Unknown Type");
+			}catch(const ProtocException& e){
+				std::cerr << e.what() << std::endl;
+			}
 		break;
                 }
         }
@@ -272,7 +289,11 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
 				*res_sentence << func_sentence;
                         break;
                         case TokenID::Type::ARRAY:
-                                throw "array<array> is no support";
+				try{
+				throw ProtocException("Unsupport array<array>");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
                         break;
                         case TokenID::Type::USER:
 				func_sentence = FUNC("int %s_message_get_%s(struct %s_message** value, struct %s_message* msg, int index)", {_symbol->get_symbol_value(), kvproperty->_name, kvproperty->_key.get_addtion()[0], _symbol->get_symbol_value()});
@@ -284,7 +305,11 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
 				*res_sentence << func_sentence;
                         break;
                         default:
-                                throw "unsupport type";
+				try{
+				throw ProtocException("Unsupport array<array>");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
                         break;
 			}
                 break;
@@ -303,7 +328,11 @@ std::shared_ptr<Sentence> MessageSourceGenerator::generate()
 			*res_sentence << func_sentence;
                 break;
 		default:
-			throw "unsupport type";
+			try{
+			throw ProtocException("Unknown Type");
+			}catch(const ProtocException& e){
+				std::cerr << e.what() << std::endl;
+			}
                 }
         }
 	return res_sentence;
@@ -462,13 +491,21 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 					*if_sentence << EXP("yar_unpack_iterator_free(%s_it_array);", {kvproperty_input->_name});
 				break;
 				case TokenID::Type::ARRAY:
-					throw "unsupport array<array>";
+					try{
+					throw ProtocException("Unsupport array<array>");
+					}catch(const ProtocException& e){
+						std::cerr << e.what() << std::endl;
+					}
 				break;
 				case TokenID::Type::USER:
 					user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty_input->_key.get_addtion()[0]));	
 					if(user_symbol == nullptr)
 					{
-						throw "some message no define";
+						try{
+						throw ProtocException(kvproperty_input->_key.get_addtion()[0] + " is undefined");
+						}catch(const ProtocException& e){
+							std::cerr << e.what() << std::endl;
+						}
 					}
 					*if_sentence << EXP("int index = 0;");
 					dowhile_sentence_3 = DOWHILE("yar_unpack_iterator_next(%s_it_array)", {kvproperty_input->_name});
@@ -488,7 +525,11 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 					*if_sentence << EXP("yar_unpack_iterator_free(%s_it_array);", {kvproperty_input->_name});
 				break;
 				default:
-					throw "unsupport type";
+					try{
+					throw ProtocException("Unknown Type");
+					}catch(const ProtocException& e){
+						std::cerr << e.what() << std::endl;
+					}
 				break;
 				}
 			break;
@@ -496,7 +537,11 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 				user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty_input->_key.get_addtion()[0]));
 				if(user_symbol == nullptr)
 				{
-					throw "some message undefine";
+					try{
+					throw ProtocException(kvproperty_input->_key.get_addtion()[0] + " is undefined");
+					}catch(const ProtocException& e){
+						std::cerr << e.what() << std::endl;
+					}
 				}
 				*if_sentence << EXP("struct %s_message* %s_msg = %s_message_create();", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 				*if_sentence << EXP("const yar_data* %s_yar_data = yar_unpack_iterator_current(it_map);", {user_symbol->get_symbol_value()});
@@ -585,13 +630,21 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 					*func_sentence << for_sentence;
 				break;
 				case TokenID::Type::ARRAY:
-					throw "unsupport array<array>";
+					try{
+					throw ProtocException("Unsupport array<array>");
+					}catch(const ProtocException& e){
+						std::cerr << e.what() << std::endl;
+					}
 				break;
 				case TokenID::Type::USER:
 					user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty_output->_key.get_addtion()[0]));
 					if(user_symbol == nullptr)
 					{
-						throw "some message undefine";
+						try{
+						throw ProtocException(kvproperty_output->_key.get_addtion()[0] + " is undefined");
+						}catch(const ProtocException& e){
+							std::cerr << e.what() << std::endl;
+						}
 					}
 					*func_sentence << EXP("struct %s_message* %s_msg = NULL;", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 					for_sentence = FOR("int i = 0; i < %s; i++", {kvproperty_output->_key.get_addtion()[1]});
@@ -605,7 +658,11 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 					*func_sentence << for_sentence;
 				break;
 				default:
-					throw "unsupport type";
+					try{
+					throw ProtocException("Unknown Type");
+					}catch(const ProtocException& e){
+						std::cerr << e.what() << std::endl;
+					}
 				break;
 				}
 			break;
@@ -613,14 +670,22 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 				user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty_output->_key.get_addtion()[0]));
 				if(user_symbol == nullptr)
 				{
-					throw "some message undefine";
+					try{
+					throw ProtocException(kvproperty_output->_key.get_addtion()[0] + " is undefined");
+					}catch(const ProtocException& e){
+						std::cerr << e.what() << std::endl;
+					}
 				}
 				*func_sentence << EXP("struct %s_message* %s_msg = NULL;", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 				*func_sentence << EXP("%s_message_get_%s(&%s_msg, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name, user_symbol->get_symbol_value()});
 				*func_sentence << pack_map_generate(user_symbol, "packager"s);
 			break;
 			default:
-				throw "unsupport type";
+				try{
+				throw ProtocException("Unknown Type");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			}
 		}
@@ -716,13 +781,21 @@ std::shared_ptr<Sentence> YarSourceGenerator::unpack_map_generate(std::shared_pt
 				//why empty!!!
 			break;
 			case TokenID::Type::ARRAY:
-				throw "unsupport array<array>";
+				try{
+				throw ProtocException("unsupport array<array>");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			case TokenID::Type::USER:
 				//why empty
 			break;
 			default:
-				throw "unsupport type";
+				try{
+				throw ProtocException("unsupport array<array>");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			}
 		break;
@@ -730,7 +803,11 @@ std::shared_ptr<Sentence> YarSourceGenerator::unpack_map_generate(std::shared_pt
 			user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[0]));
 			if(user_symbol == nullptr)
 			{
-				throw "some message undefine";
+				try{
+				throw ProtocException(kvproperty->_key.get_addtion()[0] + " is undefined");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			}
 			EXP("struct %s_message* %s_msg = %s_message_create();", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 			EXP("const yar_data* %s_yar_data = yar_unpack_iterator_current(%s_it_map);", {kvproperty->_key.get_addtion()[0], symbol->get_symbol_value()});
@@ -738,7 +815,11 @@ std::shared_ptr<Sentence> YarSourceGenerator::unpack_map_generate(std::shared_pt
 			*if_sentence << EXP("%s_message_set_%s(%s_msg, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 		break;
 		default:
-			throw "unsupport type";
+			try{
+			throw ProtocException("Unknown Type");
+			}catch(const ProtocException& e){
+				std::cerr << e.what() << std::endl;
+			}
 		break;
 		}
 		*dowhile_sentence << if_sentence;
@@ -814,13 +895,21 @@ std::shared_ptr<Sentence> YarSourceGenerator::pack_map_generate(std::shared_ptr<
 				//why empty!!!
 			break;
 			case TokenID::Type::ARRAY:
-				throw "unsupport array<array>";
+				try{
+				throw ProtocException("Unsupport array<array>");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			case TokenID::Type::USER:
 				//why empty!!!
 			break;
 			default:
-				throw "unsupport type";
+				try{
+				throw ProtocException("Unknown Type");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			break;
 			}
 		break;
@@ -828,14 +917,22 @@ std::shared_ptr<Sentence> YarSourceGenerator::pack_map_generate(std::shared_ptr<
 			user_symbol = SymbolTable::Instance()->find(SymbolID(SymbolID::Type::MESSAGE, kvproperty->_key.get_addtion()[0]));	
 			if(user_symbol == nullptr)
 			{
-				throw "some message undefined";
+				try{
+				throw ProtocException(kvproperty->_key.get_addtion()[0] + " is undefined");
+				}catch(const ProtocException& e){
+					std::cerr << e.what() << std::endl;
+				}
 			}
 			*res_sentence << EXP("struct %s_message* %s_msg = NULL;", {user_symbol->get_symbol_value(), user_symbol->get_symbol_value()});
 			*res_sentence << EXP("%s_message_get_%s(&%s_msg, %s_msg);", {symbol->get_symbol_value(), kvproperty->_name, user_symbol->get_symbol_value(), symbol->get_symbol_value()});
 			pack_map_generate(user_symbol, yar_packager);
 		break;
 		default:
-			throw "unsupport type";
+			try{
+			throw ProtocException("Unknown Type");
+			}catch(const ProtocException& e){
+				std::cerr << e.what() << std::endl;
+			}
 		break;
 		}
 	}
