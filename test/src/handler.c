@@ -1,8 +1,13 @@
 #include "handler.h"
+#include <stdio.h>
 void Test_test_int_int_1_handler(struct int_msg_message* input, struct int_msg_message* output){
     //Enter the code here...
     int64_t value = 0;
     int_msg_message_get_value(&value, input);
+    if(value == 1)
+	    printf("[int_int] OK\n"); 
+    else
+	    printf("[int_int] ERROR\n");
     int_msg_message_set_value(output, value);
 }
 void Test_test_int_float_2_handler(struct int_msg_message* input, struct float_msg_message* output){
@@ -10,32 +15,85 @@ void Test_test_int_float_2_handler(struct int_msg_message* input, struct float_m
     int64_t value = 0;
     double out_double = 0;
     int_msg_message_get_value(&value, input);
-    out_double = value + out_double;
+    if(value == 2)
+	    printf("[int_float] OK\n"); 
+    else
+	    printf("[int_float] ERROR\n");
+    out_double = 2.0;
     float_msg_message_set_value(output, out_double);
 }
 void Test_test_int_string_3_handler(struct int_msg_message* input, struct string_msg_message* output){
     //Enter the code here...
-
+    int64_t value = 0;
+    char* out = "3";
+    int_msg_message_get_value(&value, input);
+    if(value == 3)
+	    printf("[int_string] OK\n"); 
+    else
+	    printf("[int_string] ERROR\n");
+    string_msg_message_set_value(output, out);
 }
 void Test_test_int_array_int_4_handler(struct int_msg_message* input, struct array_int_message* output){
     //Enter the code here...
-
+    int64_t value = 0;
+    int_msg_message_get_value(&value, input);
+    if(value == 4)
+	    printf("[int_array_int] OK\n"); 
+    else
+	    printf("[int_array_int] ERROR\n");
+    for(int i = 0; i < 5; i++)
+    {
+	array_int_message_set_value(output, 4, i);
+    }
 }
 void Test_test_int_array_float_5_handler(struct int_msg_message* input, struct array_float_message* output){
     //Enter the code here...
-
+    int64_t value = 0;
+    int_msg_message_get_value(&value, input);
+    if(value == 5)
+	    printf("[int_array_float] OK\n"); 
+    else
+	    printf("[int_array_float] ERROR\n");
+    for(int i = 0; i < 5; i++)
+    {
+	array_float_message_set_value(output, 5.0, i);
+    }
 }
 void Test_test_int_array_string_6_handler(struct int_msg_message* input, struct array_string_message* output){
     //Enter the code here...
-
+    int64_t value = 0;
+    int_msg_message_get_value(&value, input);
+    if(value == 6)
+	    printf("[int_array_string] OK\n"); 
+    else
+	    printf("[int_array_string] ERROR\n");
+    for(int i = 0; i < 5; i++)
+    {
+	array_string_message_set_value(output, "6", i);
+    }
 }
 void Test_test_int_array_bool_7_handler(struct int_msg_message* input, struct array_bool_message* output){
     //Enter the code here...
-
+    int64_t value = 0;
+    int_msg_message_get_value(&value, input);
+    if(value == 7)
+	    printf("[int_array_bool] OK\n"); 
+    else
+	    printf("[int_array_bool] ERROR\n");
+    for(int i = 0; i < 5; i++)
+    {
+	array_bool_message_set_value(output, 1, i);
+    }
 }
 void Test_test_int_bool_8_handler(struct int_msg_message* input, struct bool_msg_message* output){
     //Enter the code here...
-
+    int64_t value = 0;
+    int_msg_message_get_value(&value, input);
+    if(value == 8)
+	    printf("[int_bool] OK\n"); 
+    else
+	    printf("[int_bool] ERROR\n");
+    bool_msg_message_set_value(output, 1);
 }
 void Test_test_float_int_1_handler(struct float_msg_message* input, struct int_msg_message* output){
     //Enter the code here...

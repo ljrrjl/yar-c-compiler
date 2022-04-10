@@ -1,5 +1,5 @@
 project(Test)
-
+cmake_minimum_required(VERSION 3.18)
 set(YAR_PATH /home/ljr/local)
 
 set(SERVER_SRC_LIST
