@@ -573,24 +573,24 @@ std::shared_ptr<Sentence> YarSourceGenerator::generate()
 			switch(kvproperty_output->_key.get_id().get_type())
 			{
 			case TokenID::Type::INT64:
-				*func_sentence << EXP("%s response_number = 0;", {INT64_t});
-				*func_sentence << EXP("%s_message_get_%s(&response_number, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name});
-				*func_sentence << EXP("yar_pack_push_long(packager, response_number);");
+				*func_sentence << EXP("%s response_%s = 0;", {INT64_t, kvproperty_output->_name});
+				*func_sentence << EXP("%s_message_get_%s(&response_%s, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name, kvproperty_output->_name});
+				*func_sentence << EXP("yar_pack_push_long(packager, response_%s);", {kvproperty_output->_name});
 			break;
 			case TokenID::Type::FLOAT64:
-				*func_sentence << EXP("%s response_number = 0;", {FLOAT64_t});
-				*func_sentence << EXP("%s_message_get_%s(&response_number, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name});
-				*func_sentence << EXP("yar_pack_push_double(packager, response_number);");
+				*func_sentence << EXP("%s response_%s = 0;", {FLOAT64_t, kvproperty_output->_name});
+				*func_sentence << EXP("%s_message_get_%s(&response_%s, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name, kvproperty_output->_name});
+				*func_sentence << EXP("yar_pack_push_double(packager, response_%s);", {kvproperty_output->_name});
 			break;
 			case TokenID::Type::STRING:
-				*func_sentence << EXP("%s response_number = NULL;", {STRING_t});
-				*func_sentence << EXP("%s_message_get_%s(&response_number, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name});
-				*func_sentence << EXP("yar_pack_push_string(packager, response_number, strlen(response_number));");
+				*func_sentence << EXP("%s response_%s = NULL;", {STRING_t, kvproperty_output->_name});
+				*func_sentence << EXP("%s_message_get_%s(&response_%s, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name, kvproperty_output->_name});
+				*func_sentence << EXP("yar_pack_push_string(packager, response_%s, strlen(response_%s));", {kvproperty_output->_name, kvproperty_output->_name});
 			break;
 			case TokenID::Type::BOOLEAN:
-				*func_sentence << EXP("%s response_number = 0;", {BOOLEAN_t});
-				*func_sentence << EXP("%s_message_get_%s(&response_number, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name});
-				*func_sentence << EXP("yar_pack_push_bool(packager, response_number);");
+				*func_sentence << EXP("%s response_%s = 0;", {BOOLEAN_t, kvproperty_output->_name});
+				*func_sentence << EXP("%s_message_get_%s(&response_%s, output_msg);", {output_symbol_ptr->get_symbol_value(), kvproperty_output->_name, kvproperty_output->_name});
+				*func_sentence << EXP("yar_pack_push_bool(packager, response_%s);", {kvproperty_output->_name});
 			break;
 			case TokenID::Type::ARRAY:
 				*func_sentence << EXP("yar_pack_push_array(packager, %s);", {kvproperty_output->_key.get_addtion()[1]});
