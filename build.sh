@@ -50,20 +50,4 @@ cd ..
 rm include/yar_protoc.tab.h
 rm src/yar_protoc.tab.cc src/lex.yy.cc
 
-#build for test
-cd ./test
-mkdir build
-cd build
-cmake ..
-if [ $? -ne 0 ]
-then
-	echo "fail in test cmake"
-	exit 1
-fi
-make -j4
-if [ $? -ne 0 ]
-then
-	echo "fail in test make"
-	exit 1
-fi
 echo "success"
