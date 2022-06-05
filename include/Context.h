@@ -9,7 +9,7 @@ public:
 	int get_col() const;
 	int get_last_token_begin() const;
 	const std::string get_row_text() const;
-	static std::shared_ptr<Context> Instance();
+	static Context* Instance();
 	Context& operator<<(const char* str);
 private:
 	Context();
@@ -20,5 +20,4 @@ private:
 	void add_row(int num);
 	void add_col(int num);
 	void reset_row_text();
-	static std::shared_ptr<Context> _instance;
 };

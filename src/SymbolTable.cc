@@ -10,13 +10,10 @@
 
 #include "SymbolTable.h"
 
-std::shared_ptr<SymbolTable> SymbolTable::_symboltable = nullptr;
-
-std::shared_ptr<SymbolTable> SymbolTable::Instance()
+SymbolTable* SymbolTable::Instance()
 {
-	if (_symboltable == nullptr)
-		_symboltable.reset(new SymbolTable);
-	return _symboltable;
+	static SymbolTable symbole_table;
+	return &symbole_table;
 }
 
 bool SymbolTable::insert(const SymbolID& id)

@@ -11,13 +11,10 @@
 #include "GeneratorFactory.h"
 #include "FileManager.h"
 
-std::shared_ptr<GeneratorFactory> GeneratorFactory::_instance = nullptr;
-
-std::shared_ptr<GeneratorFactory> GeneratorFactory::Instance()
+GeneratorFactory* GeneratorFactory::Instance()
 {
-	if (_instance == nullptr)
-		_instance.reset(new GeneratorFactory);
-	return _instance;
+	static GeneratorFactory factory;
+	return &factory;
 }
 
 std::shared_ptr<Generator> GeneratorFactory::create_generator(const FileID& file_id, const std::shared_ptr<Symbol>& symbol)

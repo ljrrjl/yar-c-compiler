@@ -1,8 +1,6 @@
 #include "Context.h"
 #include <cstring>
 
-std::shared_ptr<Context> Context::_instance = nullptr;
-
 Context::Context():_row(1), _col(0), _last_token_begin(0){}
 
 int Context::get_row() const
@@ -37,11 +35,10 @@ void Context::reset_row_text()
 	std::stringstream empty;
 	_row_text.swap(empty);
 }
-std::shared_ptr<Context> Context::Instance()
+Context* Context::Instance()
 {
-	if (_instance == nullptr)
-		_instance.reset(new Context);
-	return _instance;
+	static Context context;
+	return &context;
 }
 
 Context& Context::operator<<(const char* str)

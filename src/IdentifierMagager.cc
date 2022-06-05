@@ -10,15 +10,12 @@
 
 #include "IdentifierManager.h"
 
-std::shared_ptr<IdentifierManager> IdentifierManager::_instance = nullptr;
-
 int IdentifierManager::_buffer_base = 0;
 
-std::shared_ptr<IdentifierManager> IdentifierManager::Instance()
+IdentifierManager* IdentifierManager::Instance()
 {
-	if (IdentifierManager::_instance == nullptr)
-		IdentifierManager::_instance.reset(new IdentifierManager);
-	return _instance;
+	static IdentifierManager id;
+	return &id;	
 }
 
 FileID IdentifierManager::generate_fileid(const std::string& filename)

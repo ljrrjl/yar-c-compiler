@@ -11,13 +11,11 @@
 #include "FileManager.h"
 #include "FileDecorator.h"
 
-std::shared_ptr<FileManager> FileManager::_filemanager = nullptr;
 
-std::shared_ptr<FileManager> FileManager::Instance()
+FileManager* FileManager::Instance()
 {
-	if (FileManager::_filemanager == nullptr)
-		FileManager::_filemanager.reset(new FileManager);
-	return FileManager::_filemanager;
+	static FileManager file_manager;
+	return &file_manager;
 }
 
 FileID FileManager::register_file(const std::string& filename, const FileInfo& fileinfo)

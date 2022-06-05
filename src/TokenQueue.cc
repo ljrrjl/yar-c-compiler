@@ -10,13 +10,11 @@
 
 #include "TokenQueue.h"
 
-std::shared_ptr<TokenQueue> TokenQueue::_instance = nullptr;
 
-std::shared_ptr<TokenQueue> TokenQueue::Instance()
+TokenQueue* TokenQueue::Instance()
 {
-	if(_instance == nullptr)
-		_instance.reset(new TokenQueue);
-	return _instance;
+	static TokenQueue tokenqueue;
+	return &tokenqueue;
 }
 
 void TokenQueue::push(std::shared_ptr<Token> token)
